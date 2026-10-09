@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Organizer</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #e6f7f5;
+            --bg-card: #ffffff;
+            --text-primary: #1b4943;
+            --text-secondary: #4a7c75;
+            --accent: #2dd4bf;
+            --accent-hover: #14b8a6;
+            --border-color: #ccf1ed;
+            --error-bg: #ffeaa7;
+            --error-text: #d63031;
+            
+            --sch-bg: #2dd4bf;
+            --sch-card-bg: #e6f7f5;
+            --sch-text: #ffffff;
+        }
+
+        /* ТЕМЫ ДНЕВНОГО РЕЖИМА */
+        [data-theme="light"][data-color="p-mint"]     { --bg-primary: #e6f7f5; --bg-card: #ffffff; --text-primary: #123d37; --text-secondary: #3d6e66; --accent: #2dd4bf; --accent-hover: #14b8a6; --border-color: #bbf0ea; }
+        [data-theme="light"][data-color="p-lavender"] { --bg-primary: #f3f0ff; --bg-card: #ffffff; --text-primary: #2e1065; --text-secondary: #5b21b6; --accent: #a855f7; --accent-hover: #9333ea; --border-color: #e9d5ff; }
+        [data-theme="light"][data-color="p-peach"]    { --bg-primary: #fff7ed; --bg-card: #ffffff; --text-primary: #431407; --text-secondary: #9a3412; --accent: #fb923c; --accent-hover: #f97316; --border-color: #ffedd5; }
+        [data-theme="light"][data-color="p-sky"]      { --bg-primary: #f0f9ff; --bg-card: #ffffff; --text-primary: #0c4a6e; --text-secondary: #0369a1; --accent: #38bdf8; --accent-hover: #0284c7; --border-color: #e0f2fe; }
+        [data-theme="light"][data-color="p-rose"]     { --bg-primary: #fff1f2; --bg-card: #ffffff; --text-primary: #4c0519; --text-secondary: #9f1239; --accent: #fb7185; --accent-hover: #f43f5e; --border-color: #ffe4e6; }
+        [data-theme="light"][data-color="v-emerald"]  { --bg-primary: #ecfdf5; --bg-card: #ffffff; --text-primary: #064e3b; --text-secondary: #047857; --accent: #10b981; --accent-hover: #059669; --border-color: #a7f3d0; }
+        [data-theme="light"][data-color="v-blue"]     { --bg-primary: #eff6ff; --bg-card: #ffffff; --text-primary: #1e3a8a; --text-secondary: #1d4ed8; --accent: #3b82f6; --accent-hover: #2563eb; --border-color: #bfdbfe; }
+        [data-theme="light"][data-color="v-amber"]    { --bg-primary: #fffbebfb; --bg-card: #ffffff; --text-primary: #78350f; --text-secondary: #b45309; --accent: #f59e0b; --accent-hover: #d97706; --border-color: #fde68a; }
+        [data-theme="light"][data-color="v-purple"]   { --bg-primary: #faf5ff; --bg-card: #ffffff; --text-primary: #581c87; --text-secondary: #7e22ce; --accent: #8b5cf6; --accent-hover: #7c3aed; --border-color: #e9d5ff; }
+        [data-theme="light"][data-color="v-crimson"]  { --bg-primary: #fef2f2; --bg-card: #ffffff; --text-primary: #7f1d1d; --text-secondary: #b91c1c; --accent: #ef4444; --accent-hover: #dc2626; --border-color: #fecaca; }
+
+        /* НОЧНОЙ РЕЖИМ */
+        [data-theme="dark"] {
+            --bg-primary: #1e1e2e;
+            --bg-card: #2d2d3f;
+            --text-primary: #f8f9fa;
+            --text-secondary: #b2bec3;
+            --accent: #a29bfe;
+            --accent-hover: #8c7ae6;
+            --border-color: #40405c;
+            --error-bg: #5c2c2c;
+            --error-text: #ff7675;
+        }
+
+        /* ЦВЕТА РАСПИСАНИЯ */
+        [data-sch-color="mint"]     { --sch-bg: #2dd4bf; --sch-card-bg: #e6f7f5; }
+        [data-sch-color="lavender"] { --sch-bg: #a855f7; --sch-card-bg: #f3f0ff; }
+        [data-sch-color="peach"]    { --sch-bg: #fb923c; --sch-card-bg: #fff7ed; }
+        [data-sch-color="sky"]      { --sch-bg: #38bdf8; --sch-card-bg: #f0f9ff; }
+        [data-sch-color="rose"]     { --sch-bg: #fb7185; --sch-card-bg: #fff1f2; }
+        [data-sch-color="emerald"]  { --sch-bg: #10b981; --sch-card-bg: #ecfdf5; }
+        [data-sch-color="blue"]     { --sch-bg: #3b82f6; --sch-card-bg: #eff6ff; }
+        [data-sch-color="purple"]   { --sch-bg: #8b5cf6; --sch-card-bg: #faf5ff; }
+        [data-sch-color="crimson"]  { --sch-bg: #ef4444; --sch-card-bg: #fef2f2; }
+
+        [dir="rtl"] { text-align: right; }
+        [dir="rtl"] .task-left { flex-direction: row-reverse; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .hidden { display: none !important; }
+
+        .icon-svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            vertical-align: middle;
+        }
+
+        /* Авторизация */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 380px;
+            border: 1px solid var(--border-color);
+        }
+
+        .auth-header { text-align: center; margin-bottom: 20px; }
+        .auth-header .icon-svg { width: 36px; height: 36px; stroke: var(--accent); margin-bottom: 10px; }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1; padding: 10px; background: none; border: none;
+            color: var(--text-secondary); font-size: 15px; cursor: pointer;
+        }
+
+        .tab-btn.active {
+            color: var(--accent); border-bottom: 2px solid var(--accent); font-weight: 600;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-secondary); }
+
+        .form-group input, .custom-select, .custom-date-input, #task-priority, #task-category {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-color);
+            border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); outline: none;
+        }
+
+        .btn-primary {
+            width: 100%; padding: 12px; background: var(--accent); color: #ffffff;
+            border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600;
+        }
+
+        .btn-primary:hover { background: var(--accent-hover); }
+
+        .btn-secondary {
+            padding: 8px 14px; background: var(--bg-primary); border: 1px solid var(--border-color);
+            border-radius: 6px; color: var(--text-primary); cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        .btn-icon {
+            background: none; border: 1px solid var(--border-color); padding: 6px 12px;
+            border-radius: 6px; cursor: pointer; color: var(--text-primary);
+        }
+
+        .error-box {
+            background: var(--error-bg); color: var(--error-text); padding: 10px;
+            border-radius: 6px; font-size: 13px; margin-bottom: 15px; text-align: center;
+        }
+
+        .auth-footer { display: flex; justify-content: space-between; margin-top: 20px; align-items: center; }
+
+        /* Layout */
+        .app-layout { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 240px; background: var(--bg-card); border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; padding: 20px; position: sticky; top: 0; height: 100vh;
+        }
+
+        .brand { font-size: 18px; font-weight: bold; margin-bottom: 25px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        .brand .icon-svg { width: 22px; height: 22px; stroke: var(--accent); }
+
+        .nav-links { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+
+        .nav-btn {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+            background: none; border: none; color: var(--text-secondary); border-radius: 8px;
+            cursor: pointer; text-align: left; font-size: 14px;
+        }
+
+        .nav-btn.active, .nav-btn:hover { background: var(--bg-primary); color: var(--accent); font-weight: 600; }
+        .nav-btn.active .icon-svg, .nav-btn:hover .icon-svg { stroke: var(--accent); }
+
+        .content-area { flex: 1; padding: 25px; max-width: 1400px; margin: 0 auto; width: 100%; }
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Сетка */
+        .grid-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .card {
+            background: var(--bg-card); padding: 20px; border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02); margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .quote-card {
+            background: var(--bg-card); border-left: 4px solid var(--accent);
+            color: var(--text-primary); padding: 16px 20px; border-radius: 8px; margin-bottom: 20px;
+            font-style: italic; border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Заметки */
+        .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; margin-top: 15px; }
+        .note-card {
+            background: var(--bg-primary); padding: 15px; border-radius: 10px;
+            border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .note-card h4 { margin-bottom: 8px; color: var(--accent); }
+        .note-card p { font-size: 13px; color: var(--text-secondary); white-space: pre-wrap; word-break: break-word; }
+        .note-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 11px; color: var(--text-secondary); }
+
+        /* ЭКРАННОЕ РАСПИСАНИЕ */
+        .schedule-grid-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+
+        .day-column {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            min-width: 120px;
+        }
+
+        .day-column.today {
+            border: 2px solid var(--sch-bg);
+            box-shadow: 0 0 10px rgba(0,0,0,0.08);
+        }
+
+        .day-header {
+            text-align: center;
+            padding: 8px 4px;
+            border-radius: 6px;
+            background: var(--sch-bg);
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .sch-card-item {
+            background: var(--bg-card);
+            border-left: 4px solid var(--sch-bg);
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .sch-card-item .time { font-weight: bold; color: var(--text-secondary); font-size: 11px; margin-bottom: 3px; }
+        .sch-card-item .title { font-weight: 600; color: var(--text-primary); }
+        .sch-card-item .loc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* Палитра выбора */
+        .color-picker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 8px; }
+        .color-dot {
+            height: 36px; border-radius: 8px; cursor: pointer; border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+        .color-dot:hover { transform: scale(1.08); }
+        .color-dot.active { border-color: var(--text-primary); transform: scale(1.08); }
+
+        .add-task-form { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
+
+        .task-list, .reminder-list, .timer-list, .habit-list { list-style: none; }
+
+        .task-item, .reminder-item, .timer-item, .habit-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .task-item.priority-normal { border-left: 4px solid #3498db; }
+        .task-item.priority-important { border-left: 4px solid #f1c40f; }
+        .task-item.priority-urgent { border-left: 4px solid #e74c3c; }
+
+        .task-item.completed span { text-decoration: line-through; opacity: 0.5; }
+
+        .task-left { display: flex; align-items: center; gap: 10px; }
+        .btn-delete { background: none; border: none; color: var(--error-text); cursor: pointer; font-weight: bold; }
+
+        .tag-badge {
+            font-size: 11px; padding: 2px 6px; border-radius: 4px;
+            background: var(--border-color); color: var(--text-secondary); margin-left: 6px;
+        }
+
+        .habit-streak { font-size: 12px; color: var(--accent); font-weight: bold; }
+        .timer-display { font-size: 28px; font-weight: bold; color: var(--accent); margin: 8px 0; }
+        .timer-controls { display: flex; gap: 8px; }
+
+        .chart-wrapper { position: relative; height: 180px; margin-top: 15px; }
+        .chart-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 22px; font-weight: bold;
+        }
+
+        .profile-card { text-align: center; }
+        .avatar-container { margin: 15px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); background: var(--bg-primary); display: flex; align-items: center; justify-content: center; }
+
+        .setting-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px;
+        }
+
+        .btn-logout {
+            width: 100%; padding: 10px; background: none; border: 1px solid var(--error-text);
+            color: var(--error-text); border-radius: 8px; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        .text-muted { color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
+
+        /* --- ПРИНУДИТЕЛЬНЫЙ ЯРКИЙ И Ч/Б ЭКСПОРТ В PDF И ПЕЧАТЬ --- */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 8mm;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11px !important;
+            }
+
+            .sidebar, .nav-links, .add-task-form, .btn-primary, .btn-secondary, .btn-delete, .no-print {
+                display: none !important;
+            }
+
+            .content-area {
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                background: transparent !important;
+            }
+
+            .schedule-grid-container {
+                display: table !important;
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
+                overflow: visible !important;
+                margin-top: 10px !important;
+            }
+
+            .day-column {
+                display: table-cell !important;
+                width: 14.28% !important;
+                vertical-align: top !important;
+                border: 1px solid #666666 !important;
+                padding: 6px !important;
+                background: #ffffff !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            /* Вариант 1: Ч/Б С МАКСИМАЛЬНО ЯРКИМ ЧЁРНЫМ ТЕКСТОМ */
+            body.print-bw .day-header {
+                background: #f2f2f2 !important;
+                color: #000000 !important;
+                border-bottom: 2px solid #000000 !important;
+                padding: 6px !important;
+                font-weight: 900 !important;
+                font-size: 13px !important;
+            }
+
+            body.print-bw .sch-card-item {
+                border-left: 4px solid #000000 !important;
+                background: #ffffff !important;
+                border: 1px solid #999999 !important;
+            }
+
+            body.print-bw .sch-card-item .time {
+                color: #000000 !important;
+                font-weight: bold !important;
+            }
+
+            body.print-bw .sch-card-item .title {
+                color: #000000 !important;
+                font-weight: bold !important;
+            }
+
+            body.print-bw .sch-card-item .loc {
+                color: #333333 !important;
+            }
+
+            /* Вариант 2: ЦВЕТНОЙ (ЯРКИЙ СОЧНЫЙ) */
+            body.print-color .day-header {
+                background: var(--sch-bg) !important;
+                color: #ffffff !important;
+                padding: 6px !important;
+                font-weight: bold !important;
+            }
+
+            body.print-color .sch-card-item {
+                border-left: 4px solid var(--sch-bg) !important;
+                background: var(--sch-card-bg) !important;
+                border: 1px solid var(--sch-bg) !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .grid-3col { grid-template-columns: 1fr 1fr; }
+            .schedule-grid-container { grid-template-columns: repeat(7, minmax(110px, 1fr)); }
+        }
+
+        @media (max-width: 768px) {
+            .app-layout { flex-direction: column; padding-bottom: 70px; }
+            .sidebar {
+                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 60px;
+                flex-direction: row; justify-content: space-around; align-items: center;
+                padding: 0 10px; border-right: none; border-top: 1px solid var(--border-color);
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000;
+            }
+            .brand, .sidebar-footer { display: none; }
+            .nav-links { flex-direction: row; width: 100%; justify-content: space-around; gap: 0; }
+            .nav-btn { flex-direction: column; gap: 2px; font-size: 11px; padding: 6px; border-radius: 6px; text-align: center; }
+            .grid-3col, .grid-2col { grid-template-columns: 1fr; }
+            .content-area { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Экран авторизации -->
+    <div id="auth-screen" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <h2>Family Organizer</h2>
+                <p id="auth-subtitle">Войдите в свой аккаунт для продолжения</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button id="tab-login" class="tab-btn active" type="button" onclick="switchAuthTab('login')">Вход</button>
+                <button id="tab-register" class="tab-btn" type="button" onclick="switchAuthTab('register')">Регистрация</button>
+            </div>
+
+            <form onsubmit="return handleAuthSubmit(event)">
+                <div class="form-group">
+                    <label id="lbl-username" for="auth-username">Имя пользователя</label>
+                    <input type="text" id="auth-username" required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label id="lbl-password" for="auth-password">Пароль</label>
+                    <input type="password" id="auth-password" required autocomplete="current-password">
+                </div>
+
+                <div id="auth-error" class="error-box hidden"></div>
+
+                <button type="submit" id="auth-submit-btn" class="btn-primary">Войти в приложение</button>
+            </form>
+
+            <div class="auth-footer">
+                <button id="theme-btn" class="btn-icon" type="button" onclick="toggleTheme()">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                </button>
+                <select id="auth-lang-select" onchange="changeLanguage(this.value)">
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="es">Español</option>
+                    <option value="it">Italiano</option>
+                    <option value="zh">中文</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                    <option value="ky">Кыргызча</option>
+                    <option value="kk">Қазақша</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="ar">العربية</option>
+                    <option value="pt">Português</option>
+                    <option value="pl">Polski</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основное приложение -->
+    <div id="main-app" class="app-layout hidden">
+        <nav class="sidebar">
+            <div class="brand">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Organizer</span>
+            </div>
+
+            <div class="nav-links">
+                <button class="nav-btn active" onclick="switchPage('page-tasks', this)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    <span id="nav-lbl-tasks">Задачи</span>
+                </button>
+                <button class="nav-btn" onclick="switchPage('page-schedules', this)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span id="nav-lbl-schedules">Расписание</span>
+                </button>
+                <button class="nav-btn" onclick="switchPage('page-notes-page', this)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <span id="nav-lbl-notes">Заметки</span>
+                </button>
+                <button class="nav-btn" onclick="switchPage('page-habits', this)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span id="nav-lbl-habits">Привычки</span>
+                </button>
+                <button class="nav-btn" onclick="switchPage('page-pomodoro', this)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span id="nav-lbl-pomo">Таймеры</span>
+                </button>
+                <button class="nav-btn" onclick="switchPage('page-reminders', this)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span id="nav-lbl-reminders">Напоминания</span>
+                </button>
+                <button class="nav-btn" onclick="switchPage('page-profile', this)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span id="nav-lbl-profile">Профиль</span>
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span id="txt-logout">Выйти</span>
+                </button>
+            </div>
+        </nav>
+
+        <main class="content-area">
+            <!-- Страница задач -->
+            <section id="page-tasks" class="page active">
+                <div class="quote-card">
+                    <p id="quote-box">«Каждый маленький шаг приближает к большой цели!»</p>
+                </div>
+
+                <div class="grid-3col">
+                    <div class="card">
+                        <h3 id="txt-tasks-title">Дела на сегодня</h3>
+                        <form onsubmit="addTask(event)" class="add-task-form">
+                            <input type="text" id="task-input" placeholder="Что нужно сделать?" required>
+                            <div style="display: flex; gap: 8px;">
+                                <select id="task-priority" style="flex:1;">
+                                    <option value="normal">Обычный</option>
+                                    <option value="important">Важный</option>
+                                    <option value="urgent">Срочный</option>
+                                </select>
+                                <select id="task-category" style="flex:1;">
+                                    <option value="Дом">Дом</option>
+                                    <option value="Работа">Работа</option>
+                                    <option value="Учёба">Учёба</option>
+                                    <option value="Покупки">Покупки</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-primary">Добавить задачу</button>
+                        </form>
+                        <ul id="task-list" class="task-list"></ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 id="txt-notes-title">Быстрые заметки</h3>
+                        <p class="text-muted" style="margin-bottom: 10px;">Для коротких записей или мыслей.</p>
+                        <textarea id="quick-notes" placeholder="Введите текст заметок..." style="width: 100%; height: 180px; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none; resize: none;" oninput="saveNotes()"></textarea>
+                    </div>
+
+                    <div class="card">
+                        <h3 id="txt-progress-title">Прогресс дня</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="progressChart"></canvas>
+                            <div id="chart-center-text" class="chart-center">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Страница Расписаний -->
+            <section id="page-schedules" class="page">
+                <div class="grid-2col no-print">
+                    <div class="card">
+                        <h3 id="txt-create-schedule">Создать новое расписание</h3>
+                        <form onsubmit="createNewSchedule(event)" class="add-task-form">
+                            <input type="text" id="schedule-name-input" placeholder="Название (напр.: Занятия, Работа)" required>
+                            <button type="submit" class="btn-primary">Создать расписание</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3 id="txt-select-schedule">Выбрать расписание</h3>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <select id="schedule-selector" class="custom-select" onchange="switchSchedule(this.value)"></select>
+                            <button class="btn-delete" onclick="deleteCurrentSchedule()" title="Удалить расписание">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="schedule-active-block" class="card hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;" class="no-print">
+                        <div>
+                            <h2 id="current-schedule-title">Расписание</h2>
+                            <p id="today-date-display" class="text-muted" style="margin-top: 2px;"></p>
+                        </div>
+                        
+                        <!-- Выбор цвета для таблицы -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 13px; color: var(--text-secondary);">Выбрать цвет таблицы:</span>
+                            <div style="display: flex; gap: 6px;">
+                                <div class="color-dot" style="width:22px; height:22px; background:#2dd4bf;" onclick="setScheduleColor('mint')" title="Мята"></div>
+                                <div class="color-dot" style="width:22px; height:22px; background:#a855f7;" onclick="setScheduleColor('lavender')" title="Лаванда"></div>
+                                <div class="color-dot" style="width:22px; height:22px; background:#fb923c;" onclick="setScheduleColor('peach')" title="Персик"></div>
+                                <div class="color-dot" style="width:22px; height:22px; background:#38bdf8;" onclick="setScheduleColor('sky')" title="Голубой"></div>
+                                <div class="color-dot" style="width:22px; height:22px; background:#fb7185;" onclick="setScheduleColor('rose')" title="Розовый"></div>
+                                <div class="color-dot" style="width:22px; height:22px; background:#10b981;" onclick="setScheduleColor('emerald')" title="Изумруд"></div>
+                                <div class="color-dot" style="width:22px; height:22px; background:#3b82f6;" onclick="setScheduleColor('blue')" title="Синий"></div>
+                                <div class="color-dot" style="width:22px; height:22px; background:#ef4444;" onclick="setScheduleColor('crimson')" title="Красный"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопки Сохранения -->
+                    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;" class="no-print">
+                        <button class="btn-secondary" onclick="exportToPDF(false)">📄 Сохранить в PDF (Ч/Б)</button>
+                        <button class="btn-primary" style="width: auto;" onclick="exportToPDF(true)">🎨 Сохранить в PDF (Цветной)</button>
+                    </div>
+
+                    <!-- Форма добавления занятия -->
+                    <form onsubmit="addScheduleEntry(event)" class="add-task-form no-print" style="margin-top: 20px;">
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <input type="text" id="sch-subject" placeholder="Предмет / Событие" required style="flex: 2;">
+                            <select id="sch-day" class="custom-select" style="flex: 1;">
+                                <option value="Пн">Понедельник</option>
+                                <option value="Вт">Вторник</option>
+                                <option value="Ср">Среда</option>
+                                <option value="Чт">Четверг</option>
+                                <option value="Пт">Пятница</option>
+                                <option value="Сб">Суббота</option>
+                                <option value="Вс">Воскресенье</option>
+                            </select>
+                            <input type="time" id="sch-time-start" required style="flex: 1;" class="custom-select">
+                            <input type="time" id="sch-time-end" required style="flex: 1;" class="custom-select">
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="sch-location" placeholder="Аудитория / Место (опционально)" style="flex: 1;">
+                            <button type="submit" class="btn-primary" style="flex: 1;">+ Добавить запись</button>
+                        </div>
+                    </form>
+
+                    <!-- Полноценная сетка Пн-Вс -->
+                    <div class="schedule-grid-container" id="schedule-week-grid"></div>
+                </div>
+            </section>
+
+            <!-- Полноценная Страница Заметок -->
+            <section id="page-notes-page" class="page">
+                <div class="card">
+                    <h3 id="txt-full-notes-title">Мои Заметки</h3>
+                    <form onsubmit="createNewNote(event)" class="add-task-form" style="margin-top: 15px;">
+                        <input type="text" id="note-title-input" placeholder="Заголовок заметки..." required>
+                        <textarea id="note-content-input" placeholder="Текст заметки..." style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none; resize: none;" required></textarea>
+                        <button type="submit" class="btn-primary">Сохранить заметку</button>
+                    </form>
+                </div>
+
+                <div class="notes-grid" id="notes-cards-container"></div>
+            </section>
+
+            <!-- Страница Привычек -->
+            <section id="page-habits" class="page">
+                <div class="grid-2col">
+                    <div class="card">
+                        <h3 id="txt-habits-title">Новая привычка</h3>
+                        <form onsubmit="addHabit(event)" class="add-task-form">
+                            <input type="text" id="habit-input" placeholder="Например: Пить 2L воды, Зарядка" required>
+                            <button type="submit" class="btn-primary">Создать привычку</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3 id="txt-active-habits">Мои привычки</h3>
+                        <ul id="habit-list" class="habit-list" style="margin-top: 15px;"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Страница Таймеров -->
+            <section id="page-pomodoro" class="page">
+                <div class="grid-2col">
+                    <div class="card">
+                        <h3 id="txt-pomodoro-title">Создать таймер</h3>
+                        <form onsubmit="createCustomTimer(event)" class="add-task-form">
+                            <input type="text" id="timer-label" placeholder="Название (например: Учёба, Чтение)" required>
+                            <input type="number" id="timer-minutes" placeholder="Время в минутах (например: 25)" min="1" max="180" required>
+                            <button type="submit" class="btn-primary">Добавить таймер</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3 id="txt-active-timers">Мои таймеры</h3>
+                        <ul id="timer-list" class="timer-list" style="margin-top: 15px;"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Страница Напоминаний -->
+            <section id="page-reminders" class="page">
+                <div class="grid-2col">
+                    <div class="card">
+                        <h3 id="txt-add-reminder-title">Новое напоминание</h3>
+                        <form onsubmit="addReminder(event)" class="add-task-form">
+                            <div class="form-group">
+                                <input type="text" id="reminder-text" placeholder="О чем напомнить?" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="datetime-local" id="reminder-time" required>
+                            </div>
+                            <button type="submit" id="btn-set-reminder" class="btn-primary">Установить</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3 id="txt-reminders-title">Напоминания</h3>
+                        <h4 id="txt-active-reminders" style="margin-bottom: 10px; color: var(--text-secondary);">Активные</h4>
+                        <ul id="reminder-list" class="reminder-list"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Страница Профиля -->
+            <section id="page-profile" class="page">
+                <div class="grid-2col">
+                    <div class="card profile-card">
+                        <h3 id="txt-profile-title">Мой Профиль</h3>
+                        <div class="avatar-container">
+                            <div id="avatar-preview-wrap" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent); overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--bg-primary);">
+                                <img id="avatar-img" src="" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <svg id="avatar-default-icon" class="icon-svg" viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: var(--accent);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
+                            <label for="avatar-input" class="btn-secondary" id="txt-change-photo">Сменить фото</label>
+                            <input type="file" id="avatar-input" accept="image/*" onchange="uploadAvatar(event)" class="hidden">
+                        </div>
+                        <h2 id="display-username">User</h2>
+                    </div>
+
+                    <div class="card">
+                        <h3 id="txt-settings-title">Настройки</h3>
+                        <div class="setting-item">
+                            <span id="txt-theme-label">Режим отображения</span>
+                            <button id="theme-btn-main" class="btn-secondary" onclick="toggleTheme()">Дневная</button>
+                        </div>
+                        <div class="setting-item">
+                            <span id="txt-color-label">Цветовая гамма</span>
+                            <div class="color-picker-grid" style="width: 100%;">
+                                <div class="color-dot" style="background:#2dd4bf" onclick="setColorTheme('p-mint')" title="Мята"></div>
+                                <div class="color-dot" style="background:#a855f7" onclick="setColorTheme('p-lavender')" title="Лаванда"></div>
+                                <div class="color-dot" style="background:#fb923c" onclick="setColorTheme('p-peach')" title="Персик"></div>
+                                <div class="color-dot" style="background:#38bdf8" onclick="setColorTheme('p-sky')" title="Голубой"></div>
+                                <div class="color-dot" style="background:#fb7185" onclick="setColorTheme('p-rose')" title="Розовый"></div>
+                                <div class="color-dot" style="background:#10b981" onclick="setColorTheme('v-emerald')" title="Изумруд"></div>
+                                <div class="color-dot" style="background:#3b82f6" onclick="setColorTheme('v-blue')" title="Синий"></div>
+                                <div class="color-dot" style="background:#f59e0b" onclick="setColorTheme('v-amber')" title="Янтарный"></div>
+                                <div class="color-dot" style="background:#8b5cf6" onclick="setColorTheme('v-purple')" title="Фиолетовый"></div>
+                                <div class="color-dot" style="background:#ef4444" onclick="setColorTheme('v-crimson')" title="Красный"></div>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span id="txt-lang-label">Язык приложения</span>
+                            <select id="main-lang-select" onchange="changeLanguage(this.value)" class="custom-select" style="width: auto;">
+                                <option value="ru">Русский</option>
+                                <option value="en">English</option>
+                                <option value="fr">Français</option>
+                                <option value="de">Deutsch</option>
+                                <option value="es">Español</option>
+                                <option value="it">Italiano</option>
+                                <option value="zh">中文</option>
+                                <option value="ja">日本語</option>
+                                <option value="ko">한국어</option>
+                                <option value="ky">Кыргызча</option>
+                                <option value="kk">Қазақша</option>
+                                <option value="tr">Türkçe</option>
+                                <option value="ar">العربية</option>
+                                <option value="pt">Português</option>
+                                <option value="pl">Polski</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <span id="txt-notify-label">Push-Уведомления</span>
+                            <button id="btn-toggle-notify" class="btn-secondary" onclick="togglePushNotifications()">Выключено</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card margin-top">
+                    <h3 id="txt-calendar-title">Календарь истории</h3>
+                    <p id="txt-select-date-hint" class="text-muted">Выберите дату для просмотра списка выполненных дел.</p>
+                    <input type="date" id="history-date-picker" class="custom-date-input" style="margin-top: 10px;" onchange="loadHistoryDate(this.value)">
+                    <div id="history-results" class="history-box"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDemoKeyForOrganizerProjectOnly",
+            authDomain: "family-organizer-demo.firebaseapp.com",
+            databaseURL: "https://family-organizer-demo-default-rtdb.firebaseio.com",
+            projectId: "family-organizer-demo"
+        };
+        
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch (e) {}
+
+        let state = {
+            users: JSON.parse(localStorage.getItem('fo_users')) || {},
+            currentUser: localStorage.getItem('fo_current_user') || null,
+            currentTab: 'login',
+            theme: localStorage.getItem('fo_theme') || 'light',
+            colorTheme: localStorage.getItem('fo_color') || 'p-mint',
+            schColor: localStorage.getItem('fo_sch_color') || 'mint',
+            lang: localStorage.getItem('fo_lang') || 'ru',
+            notificationsEnabled: localStorage.getItem('fo_notify') === 'true',
+            tasks: [],
+            reminders: [],
+            timers: [],
+            habits: [],
+            notesList: [],
+            schedulesList: [],
+            currentScheduleId: null,
+            notes: "",
+            history: {}
+        };
+
+        let chartInstance = null;
+
+        const translations = {
+            ru: {
+                authSubtitle: "Войдите в свой аккаунт для продолжения",
+                loginTab: "Вход", regTab: "Регистрация", lblUsername: "Имя пользователя",
+                lblPassword: "Пароль", btnLogin: "Войти в приложение", btnRegister: "Зарегистрироваться",
+                profileTitle: "Мой Профиль", changePhoto: "Сменить фото", logout: "Выйти из аккаунта",
+                settingsTitle: "Настройки", themeLabel: "Режим отображения", colorLabel: "Цветовая гамма", langLabel: "Язык приложения",
+                calendarTitle: "Календарь истории", selectDateHint: "Выберите дату для просмотра списка выполненных дел.",
+                noHistoryText: "Нет выполненных дел за выбранную дату.", tasksTitle: "Дела на сегодня",
+                addPlaceholder: "Что нужно сделать?", progressTitle: "Прогресс дня", remindersTitle: "Напоминания",
+                addReminderTitle: "Новое напоминание", reminderPlaceholder: "О чем напомнить?",
+                btnSetReminder: "Установить", activeReminders: "Активные", navProfile: "Профиль",
+                navTasks: "Задачи", navReminders: "Напоминания", navPomo: "Таймеры", navHabits: "Привычки", navNotes: "Заметки", navSchedules: "Расписание",
+                dayTheme: "Дневная", nightTheme: "Ночная", errUserExists: "Пользователь с таким именем уже существует",
+                errInvalidCreds: "Неверный логин или пароль", optNormal: "Обычный", optImportant: "Важный", optUrgent: "Срочный",
+                chartCompleted: "Выполнено", chartRemaining: "Осталось",
+                pomoTitle: "Создать таймер", activeTimers: "Мои таймеры",
+                habitsTitle: "Новая привычка", activeHabits: "Мои привычки",
+                notesTitle: "Быстрые заметки", fullNotesTitle: "Мои Заметки",
+                createSchedule: "Создать расписание", selectSchedule: "Выбрать расписание",
+                notifyLabel: "Push-Уведомления", notifyOn: "Включено", notifyOff: "Выключено"
+            },
+            en: {
+                authSubtitle: "Log in to your account to continue",
+                loginTab: "Login", regTab: "Register", lblUsername: "Username",
+                lblPassword: "Password", btnLogin: "Log In", btnRegister: "Create Account",
+                profileTitle: "My Profile", changePhoto: "Change Photo", logout: "Log Out",
+                settingsTitle: "Settings", themeLabel: "Display Mode", colorLabel: "Color Scheme", langLabel: "Language",
+                calendarTitle: "History Calendar", selectDateHint: "Select a date to view completed tasks history.",
+                noHistoryText: "No completed tasks for the selected date.", tasksTitle: "Today's Tasks",
+                addPlaceholder: "What needs to be done?", progressTitle: "Daily Progress",
+                remindersTitle: "Reminders", addReminderTitle: "New Reminder",
+                reminderPlaceholder: "Remind me about...", btnSetReminder: "Set Reminder",
+                activeReminders: "Active", navProfile: "Profile", navTasks: "Tasks",
+                navReminders: "Reminders", navPomo: "Timers", navHabits: "Habits", navNotes: "Notes", navSchedules: "Schedule",
+                dayTheme: "Light", nightTheme: "Dark", errUserExists: "Username already exists",
+                errInvalidCreds: "Invalid username or password", optNormal: "Normal", optImportant: "Important", optUrgent: "Urgent",
+                chartCompleted: "Completed", chartRemaining: "Remaining",
+                pomoTitle: "Create Timer", activeTimers: "My Timers",
+                habitsTitle: "New Habit", activeHabits: "My Habits",
+                notesTitle: "Quick Notes", fullNotesTitle: "My Notes",
+                createSchedule: "Create Schedule", selectSchedule: "Select Schedule",
+                notifyLabel: "Push Notifications", notifyOn: "Enabled", notifyOff: "Disabled"
+            }
+        };
+
+        const quotes = [
+            "«Каждый маленький шаг приближает к большой цели!»",
+            "«Лучший способ начать что-то делать — перестать говорить и начать делать.»",
+            "«Дисциплина — это мост между целями и достижениями.»",
+            "«Успех — это сумма небольших усилий, повторяющихся изо дня в день.»"
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            applyTheme(state.theme);
+            setColorTheme(state.colorTheme);
+            setScheduleColor(state.schColor);
+            applyLanguage(state.lang);
+            updateNotifyBtnUI();
+
+            if (state.currentUser && state.users[state.currentUser]) {
+                showMainApp();
+            } else {
+                showAuthScreen();
+            }
+
+            const quoteEl = document.getElementById('quote-box');
+            if (quoteEl) quoteEl.innerText = quotes[Math.floor(Math.random() * quotes.length)];
+
+            const uInput = document.getElementById('auth-username');
+            const pInput = document.getElementById('auth-password');
+            if (uInput) uInput.addEventListener('input', hideAuthError);
+            if (pInput) pInput.addEventListener('input', hideAuthError);
+
+            setInterval(checkReminders, 10000);
+        });
+
+        function togglePushNotifications() {
+            if (!("Notification" in window)) {
+                alert("Ваш браузер не поддерживает Push-уведомления.");
+                return;
+            }
+
+            if (!state.notificationsEnabled) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        state.notificationsEnabled = true;
+                        localStorage.setItem('fo_notify', 'true');
+                        updateNotifyBtnUI();
+                        showNotification("Family Organizer", "Уведомления включены!");
+                    } else {
+                        alert("Доступ заблокирован в настройках браузера.");
+                    }
+                });
+            } else {
+                state.notificationsEnabled = false;
+                localStorage.setItem('fo_notify', 'false');
+                updateNotifyBtnUI();
+            }
+        }
+
+        function updateNotifyBtnUI() {
+            const btn = document.getElementById('btn-toggle-notify');
+            if (!btn) return;
+            const t = translations[state.lang] || translations.ru;
+            btn.innerText = state.notificationsEnabled ? t.notifyOn : t.notifyOff;
+        }
+
+        function showNotification(title, body) {
+            if (state.notificationsEnabled && "Notification" in window && Notification.permission === "granted") {
+                new Notification(title, { body: body });
+            }
+        }
+
+        function toggleTheme() {
+            state.theme = state.theme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('fo_theme', state.theme);
+            applyTheme(state.theme);
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            const themeBtnMain = document.getElementById('theme-btn-main');
+            const t = translations[state.lang] || translations.ru;
+            if (themeBtnMain) themeBtnMain.innerText = theme === 'light' ? t.dayTheme : t.nightTheme;
+        }
+
+        function setColorTheme(colorKey) {
+            state.colorTheme = colorKey;
+            localStorage.setItem('fo_color', colorKey);
+            document.documentElement.setAttribute('data-color', colorKey);
+
+            document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
+            const activeDot = document.querySelector(`.color-dot[onclick*="${colorKey}"]`);
+            if (activeDot) activeDot.classList.add('active');
+            
+            if (chartInstance) {
+                initChart();
+            }
+        }
+
+        function setScheduleColor(colorKey) {
+            state.schColor = colorKey;
+            localStorage.setItem('fo_sch_color', colorKey);
+            document.documentElement.setAttribute('data-sch-color', colorKey);
+        }
+
+        function changeLanguage(lang) {
+            state.lang = lang;
+            localStorage.setItem('fo_lang', lang);
+            applyLanguage(lang);
+        }
+
+        function applyLanguage(lang) {
+            const t = translations[lang] || translations.ru;
+
+            if (lang === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+            } else {
+                document.documentElement.removeAttribute('dir');
+            }
+
+            setElText('auth-subtitle', t.authSubtitle);
+            setElText('tab-login', t.loginTab); setElText('tab-register', t.regTab);
+            setElText('lbl-username', t.lblUsername); setElText('lbl-password', t.lblPassword);
+            setElText('auth-submit-btn', state.currentTab === 'login' ? t.btnLogin : t.btnRegister);
+
+            setElText('txt-profile-title', t.profileTitle); setElText('txt-change-photo', t.changePhoto);
+            setElText('txt-logout', t.logout); setElText('txt-settings-title', t.settingsTitle);
+            setElText('txt-theme-label', t.themeLabel); setElText('txt-color-label', t.colorLabel); setElText('txt-lang-label', t.langLabel);
+            setElText('txt-calendar-title', t.calendarTitle); setElText('txt-select-date-hint', t.selectDateHint);
+            setElText('txt-notify-label', t.notifyLabel);
+
+            setElText('txt-tasks-title', t.tasksTitle);
+            const taskInput = document.getElementById('task-input');
+            if (taskInput) taskInput.placeholder = t.addPlaceholder;
+
+            setElText('txt-progress-title', t.progressTitle);
+            setElText('txt-notes-title', t.notesTitle);
+            setElText('txt-full-notes-title', t.fullNotesTitle);
+            setElText('txt-reminders-title', t.remindersTitle);
+            setElText('txt-add-reminder-title', t.addReminderTitle);
+
+            const remInput = document.getElementById('reminder-text');
+            if (remInput) remInput.placeholder = t.reminderPlaceholder;
+
+            setElText('btn-set-reminder', t.btnSetReminder); setElText('txt-active-reminders', t.activeReminders);
+            setElText('txt-pomodoro-title', t.pomoTitle); setElText('txt-active-timers', t.activeTimers);
+            setElText('txt-habits-title', t.habitsTitle); setElText('txt-active-habits', t.activeHabits);
+            setElText('txt-create-schedule', t.createSchedule); setElText('txt-select-schedule', t.selectSchedule);
+
+            setElText('nav-lbl-profile', t.navProfile); setElText('nav-lbl-tasks', t.navTasks);
+            setElText('nav-lbl-reminders', t.navReminders); setElText('nav-lbl-pomo', t.navPomo);
+            setElText('nav-lbl-habits', t.navHabits); setElText('nav-lbl-notes', t.navNotes); setElText('nav-lbl-schedules', t.navSchedules);
+
+            const prioSelect = document.getElementById('task-priority');
+            if (prioSelect && prioSelect.options.length >= 3) {
+                prioSelect.options[0].text = t.optNormal;
+                prioSelect.options[1].text = t.optImportant;
+                prioSelect.options[2].text = t.optUrgent;
+            }
+
+            document.getElementById('auth-lang-select').value = lang;
+            document.getElementById('main-lang-select').value = lang;
+
+            applyTheme(state.theme);
+            updateNotifyBtnUI();
+            if (chartInstance) {
+                chartInstance.data.labels = [t.chartCompleted, t.chartRemaining];
+                chartInstance.update();
+            }
+            renderReminders();
+        }
+
+        function setElText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        }
+
+        function switchAuthTab(tab) {
+            state.currentTab = tab;
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+            const t = translations[state.lang] || translations.ru;
+            document.getElementById('auth-submit-btn').innerText = tab === 'login' ? t.btnLogin : t.btnRegister;
+            hideAuthError();
+        }
+
+        function handleAuthSubmit(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            hideAuthError();
+
+            const username = document.getElementById('auth-username').value.trim();
+            const password = document.getElementById('auth-password').value;
+            if (!username || !password) return false;
+
+            if (state.currentTab === 'register') {
+                if (state.users[username]) {
+                    showAuthError((translations[state.lang] || translations.ru).errUserExists);
+                    return false;
+                }
+                state.users[username] = { password, avatar: null, tasks: [], reminders: [], timers: [], habits: [], notesList: [], schedulesList: [], notes: "", history: {} };
+                saveUsers();
+                loginUser(username);
+            } else {
+                if (!state.users[username] || state.users[username].password !== password) {
+                    showAuthError((translations[state.lang] || translations.ru).errInvalidCreds);
+                    return false;
+                }
+                loginUser(username);
+            }
+            return false;
+        }
+
+        function loginUser(username) {
+            state.currentUser = username;
+            localStorage.setItem('fo_current_user', username);
+            document.getElementById('auth-username').value = '';
+            document.getElementById('auth-password').value = '';
+            hideAuthError();
+            showMainApp();
+        }
+
+        function logout() {
+            state.currentUser = null;
+            localStorage.removeItem('fo_current_user');
+            showAuthScreen();
+        }
+
+        function showAuthScreen() {
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('hidden');
+        }
+
+        function showMainApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+
+            const userData = state.users[state.currentUser] || { tasks: [], reminders: [], timers: [], habits: [], notesList: [], schedulesList: [], notes: "", history: {} };
+            document.getElementById('display-username').innerText = state.currentUser;
+
+            const avatarImg = document.getElementById('avatar-img');
+            const defaultIcon = document.getElementById('avatar-default-icon');
+            if (userData.avatar) {
+                avatarImg.src = userData.avatar;
+                avatarImg.style.display = 'block';
+                if (defaultIcon) defaultIcon.style.display = 'none';
+            } else {
+                avatarImg.style.display = 'none';
+                if (defaultIcon) defaultIcon.style.display = 'block';
+            }
+
+            state.tasks = userData.tasks || [];
+            state.reminders = userData.reminders || [];
+            state.timers = userData.timers || [];
+            state.habits = userData.habits || [];
+            state.notesList = userData.notesList || [];
+            state.schedulesList = userData.schedulesList || [];
+            state.notes = userData.notes || "";
+            state.history = userData.history || {};
+
+            document.getElementById('quick-notes').value = state.notes;
+
+            renderTasks();
+            renderReminders();
+            renderTimers();
+            renderHabits();
+            renderNotesCards();
+            renderSchedulesSelector();
+            initChart();
+        }
+
+        function showAuthError(msg) {
+            const errBox = document.getElementById('auth-error');
+            if (errBox) { errBox.innerText = msg; errBox.classList.remove('hidden'); }
+        }
+
+        function hideAuthError() {
+            const errBox = document.getElementById('auth-error');
+            if (errBox) errBox.classList.add('hidden');
+        }
+
+        function switchPage(pageId, btnElement) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+        }
+
+        // РАСПИСАНИЕ
+        function createNewSchedule(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const nameEl = document.getElementById('schedule-name-input');
+            const name = nameEl.value.trim();
+            if (!name) return;
+
+            const newSch = { id: Date.now(), name: name, entries: [] };
+            state.schedulesList.push(newSch);
+            state.currentScheduleId = newSch.id;
+            nameEl.value = '';
+            saveUserData();
+            renderSchedulesSelector();
+        }
+
+        function switchSchedule(idStr) {
+            state.currentScheduleId = parseInt(idStr);
+            renderCurrentScheduleGrid();
+        }
+
+        function deleteCurrentSchedule() {
+            if (!state.currentScheduleId) return;
+            state.schedulesList = state.schedulesList.filter(s => s.id !== state.currentScheduleId);
+            state.currentScheduleId = state.schedulesList.length > 0 ? state.schedulesList[0].id : null;
+            saveUserData();
+            renderSchedulesSelector();
+        }
+
+        function addScheduleEntry(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const currentSch = state.schedulesList.find(s => s.id === state.currentScheduleId);
+            if (!currentSch) return;
+
+            const subject = document.getElementById('sch-subject').value.trim();
+            const day = document.getElementById('sch-day').value;
+            const start = document.getElementById('sch-time-start').value;
+            const end = document.getElementById('sch-time-end').value;
+            const location = document.getElementById('sch-location').value.trim();
+
+            if (!subject || !start || !end) return;
+
+            currentSch.entries.push({ id: Date.now(), subject, day, start, end, location });
+
+            document.getElementById('sch-subject').value = '';
+            document.getElementById('sch-location').value = '';
+            saveUserData();
+            renderCurrentScheduleGrid();
+        }
+
+        function deleteScheduleEntry(entryId) {
+            const currentSch = state.schedulesList.find(s => s.id === state.currentScheduleId);
+            if (!currentSch) return;
+            currentSch.entries = currentSch.entries.filter(e => e.id !== entryId);
+            saveUserData();
+            renderCurrentScheduleGrid();
+        }
+
+        function renderSchedulesSelector() {
+            const selector = document.getElementById('schedule-selector');
+            if (!selector) return;
+            selector.innerHTML = '';
+
+            if (state.schedulesList.length === 0) {
+                document.getElementById('schedule-active-block').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('schedule-active-block').classList.remove('hidden');
+
+            if (!state.currentScheduleId || !state.schedulesList.find(s => s.id === state.currentScheduleId)) {
+                state.currentScheduleId = state.schedulesList[0].id;
+            }
+
+            state.schedulesList.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.innerText = s.name;
+                if (s.id === state.currentScheduleId) opt.selected = true;
+                selector.appendChild(opt);
+            });
+
+            renderCurrentScheduleGrid();
+        }
+
+        function renderCurrentScheduleGrid() {
+            const currentSch = state.schedulesList.find(s => s.id === state.currentScheduleId);
+            const grid = document.getElementById('schedule-week-grid');
+            if (!currentSch || !grid) return;
+
+            document.getElementById('current-schedule-title').innerText = currentSch.name;
+            
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('today-date-display').innerText = `Сегодня: ${today.toLocaleDateString('ru-RU', options)}`;
+
+            const daysMap = [
+                { key: 'Пн', name: 'Понедельник', idx: 1 },
+                { key: 'Вт', name: 'Вторник', idx: 2 },
+                { key: 'Ср', name: 'Среда', idx: 3 },
+                { key: 'Чт', name: 'Четверг', idx: 4 },
+                { key: 'Пт', name: 'Пятница', idx: 5 },
+                { key: 'Сб', name: 'Суббота', idx: 6 },
+                { key: 'Вс', name: 'Воскресенье', idx: 0 }
+            ];
+
+            const currentDayIdx = today.getDay();
+            grid.innerHTML = '';
+
+            daysMap.forEach(d => {
+                const isToday = d.idx === currentDayIdx;
+                const col = document.createElement('div');
+                col.className = `day-column ${isToday ? 'today' : ''}`;
+
+                const dayEntries = currentSch.entries
+                    .filter(e => e.day === d.key)
+                    .sort((a, b) => a.start.localeCompare(b.start));
+
+                let entriesHTML = dayEntries.map(e => `
+                    <div class="sch-card-item">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="time">${e.start} - ${e.end}</span>
+                            <button class="btn-delete no-print" onclick="deleteScheduleEntry(${e.id})" style="font-size:10px;">✕</button>
+                        </div>
+                        <div class="title">${escapeHtml(e.subject)}</div>
+                        ${e.location ? `<div class="loc">📍 ${escapeHtml(e.location)}</div>` : ''}
+                    </div>
+                `).join('');
+
+                col.innerHTML = `
+                    <div class="day-header">${d.key} (${d.name})</div>
+                    <div>${entriesHTML || '<div style="font-size:11px; color:var(--text-secondary); text-align:center; margin-top:10px;">Нет занятий</div>'}</div>
+                `;
+                grid.appendChild(col);
+            });
+        }
+
+        // ЭКСПОРТ В PDF
+        function exportToPDF(isColor) {
+            document.body.classList.remove('print-bw', 'print-color');
+            if (isColor) {
+                document.body.classList.add('print-color');
+            } else {
+                document.body.classList.add('print-bw');
+            }
+
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        }
+
+        // Заметки
+        function saveNotes() {
+            state.notes = document.getElementById('quick-notes').value;
+            saveUserData();
+        }
+
+        function createNewNote(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const titleEl = document.getElementById('note-title-input');
+            const contentEl = document.getElementById('note-content-input');
+
+            const title = titleEl.value.trim();
+            const content = contentEl.value.trim();
+            if (!title || !content) return;
+
+            state.notesList.push({
+                id: Date.now(),
+                title: title,
+                content: content,
+                date: new Date().toLocaleDateString()
+            });
+
+            titleEl.value = '';
+            contentEl.value = '';
+            saveUserData();
+            renderNotesCards();
+        }
+
+        function deleteNoteCard(id) {
+            state.notesList = state.notesList.filter(n => n.id !== id);
+            saveUserData();
+            renderNotesCards();
+        }
+
+        function renderNotesCards() {
+            const container = document.getElementById('notes-cards-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.notesList.forEach(n => {
+                const card = document.createElement('div');
+                card.className = 'note-card';
+                card.innerHTML = `
+                    <div>
+                        <h4>${escapeHtml(n.title)}</h4>
+                        <p>${escapeHtml(n.content)}</p>
+                    </div>
+                    <div class="note-footer">
+                        <span>${n.date}</span>
+                        <button class="btn-delete" onclick="deleteNoteCard(${n.id})">✕</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function addHabit(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const input = document.getElementById('habit-input');
+            const title = input.value.trim();
+            if (!title) return;
+
+            state.habits.push({ id: Date.now(), title, streak: 0, completedToday: false });
+            input.value = '';
+            saveUserData();
+            renderHabits();
+        }
+
+        function toggleHabit(id) {
+            const habit = state.habits.find(h => h.id === id);
+            if (habit) {
+                habit.completedToday = !habit.completedToday;
+                habit.streak += habit.completedToday ? 1 : -1;
+                if (habit.streak < 0) habit.streak = 0;
+                saveUserData();
+                renderHabits();
+            }
+        }
+
+        function deleteHabit(id) {
+            state.habits = state.habits.filter(h => h.id !== id);
+            saveUserData();
+            renderHabits();
+        }
+
+        function renderHabits() {
+            const list = document.getElementById('habit-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            state.habits.forEach(h => {
+                const li = document.createElement('li');
+                li.className = 'habit-item';
+                li.innerHTML = `
+                    <div class="task-left">
+                        <input type="checkbox" ${h.completedToday ? 'checked' : ''} onchange="toggleHabit(${h.id})">
+                        <span>${escapeHtml(h.title)}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="habit-streak">🔥 ${h.streak} дн.</span>
+                        <button class="btn-delete" onclick="deleteHabit(${h.id})">✕</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function addTask(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const input = document.getElementById('task-input');
+            const priorityEl = document.getElementById('task-priority');
+            const categoryEl = document.getElementById('task-category');
+            if (!input) return;
+
+            const priority = priorityEl ? priorityEl.value : 'normal';
+            const category = categoryEl ? categoryEl.value : 'Дом';
+            const text = input.value.trim();
+            if (!text) return;
+
+            state.tasks.push({ id: Date.now(), text, completed: false, priority, category });
+            input.value = '';
+            saveUserData();
+            renderTasks();
+        }
+
+        function toggleTask(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                if (task.completed && typeof confetti === 'function') {
+                    confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                if (!state.history[today]) state.history[today] = [];
+                if (task.completed) {
+                    state.history[today].push(task.text);
+                } else {
+                    state.history[today] = state.history[today].filter(t => t !== task.text);
+                }
+
+                saveUserData();
+                renderTasks();
+            }
+        }
+
+        function deleteTask(id) {
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            saveUserData();
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('task-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            state.tasks.forEach(t => {
+                const li = document.createElement('li');
+                li.className = `task-item priority-${t.priority} ${t.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <div class="task-left">
+                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${t.id})">
+                        <span>${escapeHtml(t.text)}</span>
+                        <span class="tag-badge">${t.category || 'Дом'}</span>
+                    </div>
+                    <button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>
+                `;
+                list.appendChild(li);
+            });
+
+            updateChart();
+        }
+
+        function createCustomTimer(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const labelEl = document.getElementById('timer-label');
+            const minutesEl = document.getElementById('timer-minutes');
+
+            const label = labelEl.value.trim();
+            const minutes = parseInt(minutesEl.value);
+
+            if (!label || isNaN(minutes) || minutes <= 0) return;
+
+            const newTimer = {
+                id: Date.now(),
+                label: label,
+                totalSeconds: minutes * 60,
+                remainingSeconds: minutes * 60,
+                isRunning: false,
+                intervalId: null
+            };
+
+            state.timers.push(newTimer);
+            labelEl.value = '';
+            minutesEl.value = '';
+            saveUserData();
+            renderTimers();
+        }
+
+        function toggleTimerRun(id) {
+            const timer = state.timers.find(t => t.id === id);
+            if (!timer) return;
+
+            if (timer.isRunning) {
+                clearInterval(timer.intervalId);
+                timer.isRunning = false;
+            } else {
+                timer.isRunning = true;
+                timer.intervalId = setInterval(() => {
+                    timer.remainingSeconds--;
+                    updateTimerUI(timer.id);
+
+                    if (timer.remainingSeconds <= 0) {
+                        clearInterval(timer.intervalId);
+                        timer.isRunning = false;
+                        timer.remainingSeconds = timer.totalSeconds;
+                        showNotification("Таймер завершён!", `Время для «${timer.label}» вышло!`);
+                        if (typeof confetti === 'function') confetti({ particleCount: 50, spread: 60 });
+                        renderTimers();
+                    }
+                }, 1000);
+            }
+            renderTimers();
+        }
+
+        function resetCustomTimer(id) {
+            const timer = state.timers.find(t => t.id === id);
+            if (!timer) return;
+            if (timer.isRunning) clearInterval(timer.intervalId);
+            timer.isRunning = false;
+            timer.remainingSeconds = timer.totalSeconds;
+            renderTimers();
+        }
+
+        function deleteCustomTimer(id) {
+            const timer = state.timers.find(t => t.id === id);
+            if (timer && timer.isRunning) clearInterval(timer.intervalId);
+            state.timers = state.timers.filter(t => t.id !== id);
+            saveUserData();
+            renderTimers();
+        }
+
+        function updateTimerUI(id) {
+            const timer = state.timers.find(t => t.id === id);
+            if (!timer) return;
+            const displayEl = document.getElementById(`timer-display-${id}`);
+            if (displayEl) {
+                const m = Math.floor(timer.remainingSeconds / 60).toString().padStart(2, '0');
+                const s = (timer.remainingSeconds % 60).toString().padStart(2, '0');
+                displayEl.innerText = `${m}:${s}`;
+            }
+        }
+
+        function renderTimers() {
+            const list = document.getElementById('timer-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            state.timers.forEach(t => {
+                const m = Math.floor(t.remainingSeconds / 60).toString().padStart(2, '0');
+                const s = (t.remainingSeconds % 60).toString().padStart(2, '0');
+
+                const li = document.createElement('li');
+                li.className = 'timer-item';
+                li.style.flexDirection = 'column';
+                li.style.alignItems = 'stretch';
+                li.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong>${escapeHtml(t.label)}</strong>
+                        <button class="btn-delete" onclick="deleteCustomTimer(${t.id})">✕</button>
+                    </div>
+                    <div id="timer-display-${t.id}" class="timer-display" style="text-align:center;">${m}:${s}</div>
+                    <div class="timer-controls">
+                        <button class="btn-primary" style="flex:1;" onclick="toggleTimerRun(${t.id})">
+                            ${t.isRunning ? 'Пауза' : 'Старт'}
+                        </button>
+                        <button class="btn-secondary" onclick="resetCustomTimer(${t.id})">Сброс</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function addReminder(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const textEl = document.getElementById('reminder-text');
+            const timeEl = document.getElementById('reminder-time');
+            if (!textEl || !timeEl) return;
+
+            const text = textEl.value.trim();
+            const time = timeEl.value;
+            if (!text || !time) return;
+
+            state.reminders.push({ id: Date.now(), text, time, notified: false });
+            textEl.value = ''; timeEl.value = '';
+            saveUserData();
+            renderReminders();
+        }
+
+        function checkReminders() {
+            const now = new Date();
+            state.reminders.forEach(r => {
+                if (new Date(r.time) <= now && !r.notified) {
+                    showNotification("Напоминание", r.text);
+                    r.notified = true;
+                    saveUserData();
+                    renderReminders();
+                }
+            });
+        }
+
+        function deleteReminder(id) {
+            state.reminders = state.reminders.filter(r => r.id !== id);
+            saveUserData();
+            renderReminders();
+        }
+
+        function renderReminders() {
+            const list = document.getElementById('reminder-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            state.reminders.forEach(r => {
+                const dateFormatted = new Date(r.time).toLocaleString(state.lang, {
+                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                });
+                const li = document.createElement('li');
+                li.className = 'reminder-item';
+                li.innerHTML = `
+                    <div>
+                        <strong>${escapeHtml(r.text)}</strong>
+                        <div style="font-size: 11px; color: var(--text-secondary);">${dateFormatted}</div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteReminder(${r.id})">✕</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function uploadAvatar(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    const avatarData = evt.target.result;
+                    const avatarImg = document.getElementById('avatar-img');
+                    const defaultIcon = document.getElementById('avatar-default-icon');
+                    
+                    avatarImg.src = avatarData;
+                    avatarImg.style.display = 'block';
+                    if (defaultIcon) defaultIcon.style.display = 'none';
+
+                    if (state.users[state.currentUser]) {
+                        state.users[state.currentUser].avatar = avatarData;
+                        saveUsers();
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function loadHistoryDate(dateStr) {
+            const container = document.getElementById('history-results');
+            if (!container) return;
+            const tasksOnDate = state.history[dateStr] || [];
+            const t = translations[state.lang] || translations.ru;
+
+            if (tasksOnDate.length === 0) {
+                container.innerHTML = `<p class="text-muted">${t.noHistoryText}</p>`;
+            } else {
+                container.innerHTML = `<ul class="task-list" style="margin-top: 10px;">` +
+                    tasksOnDate.map(taskText => `<li class="task-item"><span>✓ ${escapeHtml(taskText)}</span></li>`).join('') +
+                    `</ul>`;
+            }
+        }
+
+        function initChart() {
+            const canvas = document.getElementById('progressChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+            const ctx = canvas.getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            const t = translations[state.lang] || translations.ru;
+            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [t.chartCompleted, t.chartRemaining],
+                    datasets: [{
+                        data: [0, 1],
+                        backgroundColor: [accentColor || '#2dd4bf', '#e2e8f0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '75%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+            updateChart();
+        }
+
+        function updateChart() {
+            if (!chartInstance) return;
+            const total = state.tasks.length;
+            const completed = state.tasks.filter(t => t.completed).length;
+            const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+            chartInstance.data.datasets[0].data = total === 0 ? [0, 1] : [completed, total - completed];
+            chartInstance.update();
+
+            const centerText = document.getElementById('chart-center-text');
+            if (centerText) centerText.innerText = `${pct}%`;
+        }
+
+        function saveUserData() {
+            if (state.currentUser && state.users[state.currentUser]) {
+                state.users[state.currentUser].tasks = state.tasks;
+                state.users[state.currentUser].reminders = state.reminders;
+                state.users[state.currentUser].timers = state.timers.map(t => ({ id: t.id, label: t.label, totalSeconds: t.totalSeconds, remainingSeconds: t.remainingSeconds }));
+                state.users[state.currentUser].habits = state.habits;
+                state.users[state.currentUser].notesList = state.notesList;
+                state.users[state.currentUser].schedulesList = state.schedulesList;
+                state.users[state.currentUser].notes = state.notes;
+                state.users[state.currentUser].history = state.history;
+                saveUsers();
+
+                if (db) {
+                    db.ref('users/' + state.currentUser).set(state.users[state.currentUser]);
+                }
+            }
+        }
+
+        function saveUsers() {
+            localStorage.setItem('fo_users', JSON.stringify(state.users));
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, match => {
+                const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+                return escapeMap[match];
+            });
+        }
+    </script>
+</body>
+</html>
