@@ -80,7 +80,7 @@
             min-height: 100vh;
         }
 
-        /* ОТКЛЮЧЕНИЕ АВТОМАТИЧЕСКОГО ЗУМА НА ТЕЛЕФОНАХ ПРИ КЛИКЕ НА ПОЛЯ */
+        /* ОТКЛЮЧЕНИЕ АВТОМАТИЧЕСКОГО ЗУМА НА ТЕЛЕФОНАХ */
         @media screen and (max-width: 768px) {
             input, textarea, select {
                 font-size: 16px !important;
@@ -187,7 +187,7 @@
             display: flex; align-items: center; gap: 10px; padding: 10px 12px;
             background: none; border: none; color: var(--text-secondary); border-radius: 8px;
             cursor: pointer; text-align: left; font-size: 14px;
-            white-space: nowrap; /* Важно для горизонтальной прокрутки на мобилках */
+            white-space: nowrap;
         }
 
         .nav-btn.active, .nav-btn:hover { background: var(--bg-primary); color: var(--accent); font-weight: 600; }
@@ -212,6 +212,42 @@
             color: var(--text-primary); padding: 16px 20px; border-radius: 8px; margin-bottom: 20px;
             font-style: italic; border-top: 1px solid var(--border-color);
             border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Саб-меню для инструментов (Заметки, Привычки, Таймеры) */
+        .tools-subnav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tool-tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .tool-tab-btn.active {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+        }
+
+        .tool-subpage {
+            display: none;
+        }
+        .tool-subpage.active {
+            display: block;
         }
 
         /* Заметки */
@@ -331,103 +367,20 @@
 
         .text-muted { color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
 
-        /* --- ПРИНУДИТЕЛЬНЫЙ ЯРКИЙ И Ч/Б ЭКСПОРТ В PDF И ПЕЧАТЬ --- */
+        /* --- ПРИНУДИТЕЛЬНЫЙ ЭКСПОРТ В PDF --- */
         @media print {
-            @page {
-                size: A4 landscape;
-                margin: 8mm;
-            }
-
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            body {
-                background: #ffffff !important;
-                color: #000000 !important;
-                font-size: 11px !important;
-            }
-
-            .sidebar, .nav-links, .add-task-form, .btn-primary, .btn-secondary, .btn-delete, .no-print {
-                display: none !important;
-            }
-
-            .content-area {
-                padding: 0 !important;
-                margin: 0 !important;
-                max-width: 100% !important;
-                width: 100% !important;
-            }
-
-            .card {
-                border: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-                background: transparent !important;
-            }
-
-            .schedule-grid-container {
-                display: table !important;
-                width: 100% !important;
-                table-layout: fixed !important;
-                border-collapse: collapse !important;
-                overflow: visible !important;
-                margin-top: 10px !important;
-            }
-
-            .day-column {
-                display: table-cell !important;
-                width: 14.28% !important;
-                vertical-align: top !important;
-                border: 1px solid #666666 !important;
-                padding: 6px !important;
-                background: #ffffff !important;
-                box-shadow: none !important;
-                border-radius: 0 !important;
-            }
-
-            body.print-bw .day-header {
-                background: #f2f2f2 !important;
-                color: #000000 !important;
-                border-bottom: 2px solid #000000 !important;
-                padding: 6px !important;
-                font-weight: 900 !important;
-                font-size: 13px !important;
-            }
-
-            body.print-bw .sch-card-item {
-                border-left: 4px solid #000000 !important;
-                background: #ffffff !important;
-                border: 1px solid #999999 !important;
-            }
-
-            body.print-bw .sch-card-item .time {
-                color: #000000 !important;
-                font-weight: bold !important;
-            }
-
-            body.print-bw .sch-card-item .title {
-                color: #000000 !important;
-                font-weight: bold !important;
-            }
-
-            body.print-bw .sch-card-item .loc {
-                color: #333333 !important;
-            }
-
-            body.print-color .day-header {
-                background: var(--sch-bg) !important;
-                color: #ffffff !important;
-                padding: 6px !important;
-                font-weight: bold !important;
-            }
-
-            body.print-color .sch-card-item {
-                border-left: 4px solid var(--sch-bg) !important;
-                background: var(--sch-card-bg) !important;
-                border: 1px solid var(--sch-bg) !important;
-            }
+            @page { size: A4 landscape; margin: 8mm; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { background: #ffffff !important; color: #000000 !important; font-size: 11px !important; }
+            .sidebar, .tools-subnav, .nav-links, .add-task-form, .btn-primary, .btn-secondary, .btn-delete, .no-print { display: none !important; }
+            .content-area { padding: 0 !important; margin: 0 !important; max-width: 100% !important; width: 100% !important; }
+            .card { border: none !important; box-shadow: none !important; padding: 0 !important; background: transparent !important; }
+            .schedule-grid-container { display: table !important; width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important; margin-top: 10px !important; }
+            .day-column { display: table-cell !important; width: 14.28% !important; vertical-align: top !important; border: 1px solid #666666 !important; padding: 6px !important; background: #ffffff !important; border-radius: 0 !important; }
+            body.print-bw .day-header { background: #f2f2f2 !important; color: #000000 !important; border-bottom: 2px solid #000000 !important; font-weight: 900 !important; }
+            body.print-bw .sch-card-item { border-left: 4px solid #000000 !important; background: #ffffff !important; border: 1px solid #999999 !important; }
+            body.print-color .day-header { background: var(--sch-bg) !important; color: #ffffff !important; font-weight: bold !important; }
+            body.print-color .sch-card-item { border-left: 4px solid var(--sch-bg) !important; background: var(--sch-card-bg) !important; border: 1px solid var(--sch-bg) !important; }
         }
 
         @media (max-width: 1024px) {
@@ -435,59 +388,28 @@
             .schedule-grid-container { grid-template-columns: repeat(7, minmax(110px, 1fr)); }
         }
 
-        /* --- ИСПРАВЛЕННАЯ МОБИЛЬНАЯ ВЕРСИЯ (Панель снизу + прокрутка) --- */
+        /* --- ИДЕАЛЬНАЯ МОБИЛЬНАЯ ВЕРСИЯ (Ровно 5 иконок внизу) --- */
         @media (max-width: 768px) {
-            body {
-                padding-bottom: 80px; /* Отступ снизу, чтобы контент не перекрывался панелью */
-            }
-
+            body { padding-bottom: 80px; }
             .app-layout { flex-direction: column; }
             
             .sidebar {
-                position: fixed; 
-                bottom: 0; 
-                left: 0; 
-                right: 0; 
-                width: 100%; 
-                height: 65px;
-                flex-direction: row; 
-                justify-content: flex-start; 
-                align-items: center;
-                padding: 0 5px; 
-                border-right: none; 
-                border-top: 1px solid var(--border-color);
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.06); 
-                z-index: 1000;
-                background: var(--bg-card);
+                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 65px;
+                flex-direction: row; justify-content: space-around; align-items: center;
+                padding: 0 5px; border-right: none; border-top: 1px solid var(--border-color);
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.06); z-index: 1000; background: var(--bg-card);
             }
 
             .brand, .sidebar-footer { display: none; }
 
-            /* Горизонтальная прокрутка всех иконок внизу */
             .nav-links { 
-                flex-direction: row; 
-                width: 100%; 
-                justify-content: flex-start; 
-                gap: 4px;
-                overflow-x: auto; 
-                white-space: nowrap;
-                -webkit-overflow-scrolling: touch;
-                padding: 0 4px;
-            }
-
-            .nav-links::-webkit-scrollbar {
-                display: none; /* Скрываем скроллбар для красоты */
+                flex-direction: row; width: 100%; justify-content: space-around; gap: 0;
+                overflow-x: visible;
             }
 
             .nav-btn { 
-                flex-direction: column; 
-                gap: 2px; 
-                font-size: 10px; 
-                padding: 6px 10px; 
-                border-radius: 6px; 
-                text-align: center;
-                min-width: 68px;
-                flex-shrink: 0;
+                flex-direction: column; gap: 2px; font-size: 10px; padding: 6px 4px; 
+                border-radius: 6px; text-align: center; flex: 1; min-width: 0;
             }
 
             .grid-3col, .grid-2col { grid-template-columns: 1fr; }
@@ -497,7 +419,7 @@
 </head>
 <body>
 
-    <!-- Экран авторизации -->
+    <!-- Авторизация -->
     <div id="auth-screen" class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
@@ -516,37 +438,21 @@
                     <label id="lbl-username" for="auth-username">Имя пользователя</label>
                     <input type="text" id="auth-username" required autocomplete="username">
                 </div>
-
                 <div class="form-group">
                     <label id="lbl-password" for="auth-password">Пароль</label>
                     <input type="password" id="auth-password" required autocomplete="current-password">
                 </div>
-
                 <div id="auth-error" class="error-box hidden"></div>
-
                 <button type="submit" id="auth-submit-btn" class="btn-primary">Войти в приложение</button>
             </form>
 
             <div class="auth-footer">
                 <button id="theme-btn" class="btn-icon" type="button" onclick="toggleTheme()">
-                    <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle></svg>
                 </button>
                 <select id="auth-lang-select" onchange="changeLanguage(this.value)">
                     <option value="ru">Русский</option>
                     <option value="en">English</option>
-                    <option value="fr">Français</option>
-                    <option value="de">Deutsch</option>
-                    <option value="es">Español</option>
-                    <option value="it">Italiano</option>
-                    <option value="zh">中文</option>
-                    <option value="ja">日本語</option>
-                    <option value="ko">한국어</option>
-                    <option value="ky">Кыргызча</option>
-                    <option value="kk">Қазақша</option>
-                    <option value="tr">Türkçe</option>
-                    <option value="ar">العربية</option>
-                    <option value="pt">Português</option>
-                    <option value="pl">Polski</option>
                 </select>
             </div>
         </div>
@@ -561,6 +467,7 @@
             </div>
 
             <div class="nav-links">
+                <!-- Ровно 5 значков для нижней панели -->
                 <button class="nav-btn active" onclick="switchPage('page-tasks', this)">
                     <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                     <span id="nav-lbl-tasks">Задачи</span>
@@ -569,17 +476,9 @@
                     <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                     <span id="nav-lbl-schedules">Расписание</span>
                 </button>
-                <button class="nav-btn" onclick="switchPage('page-notes-page', this)">
-                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                    <span id="nav-lbl-notes">Заметки</span>
-                </button>
-                <button class="nav-btn" onclick="switchPage('page-habits', this)">
-                    <svg class="icon-svg" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                    <span id="nav-lbl-habits">Привычки</span>
-                </button>
-                <button class="nav-btn" onclick="switchPage('page-pomodoro', this)">
-                    <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    <span id="nav-lbl-pomo">Таймеры</span>
+                <button class="nav-btn" onclick="switchPage('page-tools', this)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                    <span id="nav-lbl-tools">Инструменты</span>
                 </button>
                 <button class="nav-btn" onclick="switchPage('page-reminders', this)">
                     <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
@@ -593,7 +492,7 @@
 
             <div class="sidebar-footer">
                 <button class="btn-logout" onclick="logout()">
-                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline></svg>
                     <span id="txt-logout">Выйти</span>
                 </button>
             </div>
@@ -606,7 +505,7 @@
                     <p id="quote-box">«Каждый маленький шаг приближает к большой цели!»</p>
                 </div>
 
-                <div class="grid-3col">
+                <div class="grid-2col">
                     <div class="card">
                         <h3 id="txt-tasks-title">Дела на сегодня</h3>
                         <form onsubmit="addTask(event)" class="add-task-form">
@@ -627,12 +526,6 @@
                             <button type="submit" class="btn-primary">Добавить задачу</button>
                         </form>
                         <ul id="task-list" class="task-list"></ul>
-                    </div>
-
-                    <div class="card">
-                        <h3 id="txt-notes-title">Быстрые заметки</h3>
-                        <p class="text-muted" style="margin-bottom: 10px;">Для коротких записей или мыслей.</p>
-                        <textarea id="quick-notes" placeholder="Введите текст заметок..." style="width: 100%; height: 180px; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none; resize: none;" oninput="saveNotes()"></textarea>
                     </div>
 
                     <div class="card">
@@ -671,30 +564,23 @@
                             <h2 id="current-schedule-title">Расписание</h2>
                             <p id="today-date-display" class="text-muted" style="margin-top: 2px;"></p>
                         </div>
-                        
-                        <!-- Выбор цвета для таблицы -->
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 13px; color: var(--text-secondary);">Выбрать цвет таблицы:</span>
+                            <span style="font-size: 13px; color: var(--text-secondary);">Цвет:</span>
                             <div style="display: flex; gap: 6px;">
                                 <div class="color-dot" style="width:22px; height:22px; background:#2dd4bf;" onclick="setScheduleColor('mint')" title="Мята"></div>
                                 <div class="color-dot" style="width:22px; height:22px; background:#a855f7;" onclick="setScheduleColor('lavender')" title="Лаванда"></div>
                                 <div class="color-dot" style="width:22px; height:22px; background:#fb923c;" onclick="setScheduleColor('peach')" title="Персик"></div>
                                 <div class="color-dot" style="width:22px; height:22px; background:#38bdf8;" onclick="setScheduleColor('sky')" title="Голубой"></div>
                                 <div class="color-dot" style="width:22px; height:22px; background:#fb7185;" onclick="setScheduleColor('rose')" title="Розовый"></div>
-                                <div class="color-dot" style="width:22px; height:22px; background:#10b981;" onclick="setScheduleColor('emerald')" title="Изумруд"></div>
-                                <div class="color-dot" style="width:22px; height:22px; background:#3b82f6;" onclick="setScheduleColor('blue')" title="Синий"></div>
-                                <div class="color-dot" style="width:22px; height:22px; background:#ef4444;" onclick="setScheduleColor('crimson')" title="Красный"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Кнопки Сохранения -->
                     <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;" class="no-print">
-                        <button class="btn-secondary" onclick="exportToPDF(false)">📄 Сохранить в PDF (Ч/Б)</button>
-                        <button class="btn-primary" style="width: auto;" onclick="exportToPDF(true)">🎨 Сохранить в PDF (Цветной)</button>
+                        <button class="btn-secondary" onclick="exportToPDF(false)">📄 PDF (Ч/Б)</button>
+                        <button class="btn-primary" style="width: auto;" onclick="exportToPDF(true)">🎨 PDF (Цветной)</button>
                     </div>
 
-                    <!-- Форма добавления занятия -->
                     <form onsubmit="addScheduleEntry(event)" class="add-task-form no-print" style="margin-top: 20px;">
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                             <input type="text" id="sch-subject" placeholder="Предмет / Событие" required style="flex: 2;">
@@ -716,58 +602,64 @@
                         </div>
                     </form>
 
-                    <!-- Полноценная сетка Пн-Вс -->
                     <div class="schedule-grid-container" id="schedule-week-grid"></div>
                 </div>
             </section>
 
-            <!-- Полноценная Страница Заметок -->
-            <section id="page-notes-page" class="page">
-                <div class="card">
-                    <h3 id="txt-full-notes-title">Мои Заметки</h3>
-                    <form onsubmit="createNewNote(event)" class="add-task-form" style="margin-top: 15px;">
-                        <input type="text" id="note-title-input" placeholder="Заголовок заметки..." required>
-                        <textarea id="note-content-input" placeholder="Текст заметки..." style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none; resize: none;" required></textarea>
-                        <button type="submit" class="btn-primary">Сохранить заметку</button>
-                    </form>
+            <!-- ОБЪЕДИНЕННАЯ СТРАНИЦА «ИНСТРУМЕНТЫ» (Заметки, Привычки, Таймеры) -->
+            <section id="page-tools" class="page">
+                <!-- Внутреннее переключение между инструментами -->
+                <div class="tools-subnav">
+                    <button id="tool-tab-notes" class="tool-tab-btn active" onclick="switchToolSubpage('sub-notes', this)">Заметки</button>
+                    <button id="tool-tab-habits" class="tool-tab-btn" onclick="switchToolSubpage('sub-habits', this)">Привычки</button>
+                    <button id="tool-tab-pomo" class="tool-tab-btn" onclick="switchToolSubpage('sub-pomo', this)">Таймеры</button>
                 </div>
 
-                <div class="notes-grid" id="notes-cards-container"></div>
-            </section>
-
-            <!-- Страница Привычек -->
-            <section id="page-habits" class="page">
-                <div class="grid-2col">
+                <!-- Подстраница 1: Заметки -->
+                <div id="sub-notes" class="tool-subpage active">
                     <div class="card">
-                        <h3 id="txt-habits-title">Новая привычка</h3>
-                        <form onsubmit="addHabit(event)" class="add-task-form">
-                            <input type="text" id="habit-input" placeholder="Например: Пить 2L воды, Зарядка" required>
-                            <button type="submit" class="btn-primary">Создать привычку</button>
+                        <h3>Мои Заметки</h3>
+                        <form onsubmit="createNewNote(event)" class="add-task-form" style="margin-top: 15px;">
+                            <input type="text" id="note-title-input" placeholder="Заголовок заметки..." required>
+                            <textarea id="note-content-input" placeholder="Текст заметки..." style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none; resize: none;" required></textarea>
+                            <button type="submit" class="btn-primary">Сохранить заметку</button>
                         </form>
                     </div>
+                    <div class="notes-grid" id="notes-cards-container"></div>
+                </div>
 
-                    <div class="card">
-                        <h3 id="txt-active-habits">Мои привычки</h3>
-                        <ul id="habit-list" class="habit-list" style="margin-top: 15px;"></ul>
+                <!-- Подстраница 2: Привычки -->
+                <div id="sub-habits" class="tool-subpage">
+                    <div class="grid-2col">
+                        <div class="card">
+                            <h3>Новая привычка</h3>
+                            <form onsubmit="addHabit(event)" class="add-task-form">
+                                <input type="text" id="habit-input" placeholder="Например: Пить 2L воды, Зарядка" required>
+                                <button type="submit" class="btn-primary">Создать привычку</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h3>Мои привычки</h3>
+                            <ul id="habit-list" class="habit-list" style="margin-top: 15px;"></ul>
+                        </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- Страница Таймеров -->
-            <section id="page-pomodoro" class="page">
-                <div class="grid-2col">
-                    <div class="card">
-                        <h3 id="txt-pomodoro-title">Создать таймер</h3>
-                        <form onsubmit="createCustomTimer(event)" class="add-task-form">
-                            <input type="text" id="timer-label" placeholder="Название (например: Учёба, Чтение)" required>
-                            <input type="number" id="timer-minutes" placeholder="Время в минутах (например: 25)" min="1" max="180" required>
-                            <button type="submit" class="btn-primary">Добавить таймер</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3 id="txt-active-timers">Мои таймеры</h3>
-                        <ul id="timer-list" class="timer-list" style="margin-top: 15px;"></ul>
+                <!-- Подстраница 3: Таймеры -->
+                <div id="sub-pomo" class="tool-subpage">
+                    <div class="grid-2col">
+                        <div class="card">
+                            <h3>Создать таймер</h3>
+                            <form onsubmit="createCustomTimer(event)" class="add-task-form">
+                                <input type="text" id="timer-label" placeholder="Название (например: Учёба, Чтение)" required>
+                                <input type="number" id="timer-minutes" placeholder="Время в минутах (например: 25)" min="1" max="180" required>
+                                <button type="submit" class="btn-primary">Добавить таймер</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h3>Мои таймеры</h3>
+                            <ul id="timer-list" class="timer-list" style="margin-top: 15px;"></ul>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -790,8 +682,7 @@
 
                     <div class="card">
                         <h3 id="txt-reminders-title">Напоминания</h3>
-                        <h4 id="txt-active-reminders" style="margin-bottom: 10px; color: var(--text-secondary);">Активные</h4>
-                        <ul id="reminder-list" class="reminder-list"></ul>
+                        <ul id="reminder-list" class="reminder-list" style="margin-top: 15px;"></ul>
                     </div>
                 </div>
             </section>
@@ -826,36 +717,7 @@
                                 <div class="color-dot" style="background:#fb923c" onclick="setColorTheme('p-peach')" title="Персик"></div>
                                 <div class="color-dot" style="background:#38bdf8" onclick="setColorTheme('p-sky')" title="Голубой"></div>
                                 <div class="color-dot" style="background:#fb7185" onclick="setColorTheme('p-rose')" title="Розовый"></div>
-                                <div class="color-dot" style="background:#10b981" onclick="setColorTheme('v-emerald')" title="Изумруд"></div>
-                                <div class="color-dot" style="background:#3b82f6" onclick="setColorTheme('v-blue')" title="Синий"></div>
-                                <div class="color-dot" style="background:#f59e0b" onclick="setColorTheme('v-amber')" title="Янтарный"></div>
-                                <div class="color-dot" style="background:#8b5cf6" onclick="setColorTheme('v-purple')" title="Фиолетовый"></div>
-                                <div class="color-dot" style="background:#ef4444" onclick="setColorTheme('v-crimson')" title="Красный"></div>
                             </div>
-                        </div>
-                        <div class="setting-item">
-                            <span id="txt-lang-label">Язык приложения</span>
-                            <select id="main-lang-select" onchange="changeLanguage(this.value)" class="custom-select" style="width: auto;">
-                                <option value="ru">Русский</option>
-                                <option value="en">English</option>
-                                <option value="fr">Français</option>
-                                <option value="de">Deutsch</option>
-                                <option value="es">Español</option>
-                                <option value="it">Italiano</option>
-                                <option value="zh">中文</option>
-                                <option value="ja">日本語</option>
-                                <option value="ko">한국어</option>
-                                <option value="ky">Кыргызча</option>
-                                <option value="kk">Қазақша</option>
-                                <option value="tr">Türkçe</option>
-                                <option value="ar">العربية</option>
-                                <option value="pt">Português</option>
-                                <option value="pl">Polski</option>
-                            </select>
-                        </div>
-                        <div class="setting-item">
-                            <span id="txt-notify-label">Push-Уведомления</span>
-                            <button id="btn-toggle-notify" class="btn-secondary" onclick="togglePushNotifications()">Выключено</button>
                         </div>
                     </div>
                 </div>
@@ -871,19 +733,6 @@
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDemoKeyForOrganizerProjectOnly",
-            authDomain: "family-organizer-demo.firebaseapp.com",
-            databaseURL: "https://family-organizer-demo-default-rtdb.firebaseio.com",
-            projectId: "family-organizer-demo"
-        };
-        
-        let db = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-        } catch (e) {}
-
         let state = {
             users: JSON.parse(localStorage.getItem('fo_users')) || {},
             currentUser: localStorage.getItem('fo_current_user') || null,
@@ -892,79 +741,15 @@
             colorTheme: localStorage.getItem('fo_color') || 'p-mint',
             schColor: localStorage.getItem('fo_sch_color') || 'mint',
             lang: localStorage.getItem('fo_lang') || 'ru',
-            notificationsEnabled: localStorage.getItem('fo_notify') === 'true',
-            tasks: [],
-            reminders: [],
-            timers: [],
-            habits: [],
-            notesList: [],
-            schedulesList: [],
-            currentScheduleId: null,
-            notes: "",
-            history: {}
+            tasks: [], reminders: [], timers: [], habits: [], notesList: [], schedulesList: [], currentScheduleId: null, history: {}
         };
 
         let chartInstance = null;
-
-        const translations = {
-            ru: {
-                authSubtitle: "Войдите в свой аккаунт для продолжения",
-                loginTab: "Вход", regTab: "Регистрация", lblUsername: "Имя пользователя",
-                lblPassword: "Пароль", btnLogin: "Войти в приложение", btnRegister: "Зарегистрироваться",
-                profileTitle: "Мой Профиль", changePhoto: "Сменить фото", logout: "Выйти из аккаунта",
-                settingsTitle: "Настройки", themeLabel: "Режим отображения", colorLabel: "Цветовая гамма", langLabel: "Язык приложения",
-                calendarTitle: "Календарь истории", selectDateHint: "Выберите дату для просмотра списка выполненных дел.",
-                noHistoryText: "Нет выполненных дел за выбранную дату.", tasksTitle: "Дела на сегодня",
-                addPlaceholder: "Что нужно сделать?", progressTitle: "Прогресс дня", remindersTitle: "Напоминания",
-                addReminderTitle: "Новое напоминание", reminderPlaceholder: "О чем напомнить?",
-                btnSetReminder: "Установить", activeReminders: "Активные", navProfile: "Профиль",
-                navTasks: "Задачи", navReminders: "Напоминания", navPomo: "Таймеры", navHabits: "Привычки", navNotes: "Заметки", navSchedules: "Расписание",
-                dayTheme: "Дневная", nightTheme: "Ночная", errUserExists: "Пользователь с таким именем уже существует",
-                errInvalidCreds: "Неверный логин или пароль", optNormal: "Обычный", optImportant: "Важный", optUrgent: "Срочный",
-                chartCompleted: "Выполнено", chartRemaining: "Осталось",
-                pomoTitle: "Создать таймер", activeTimers: "Мои таймеры",
-                habitsTitle: "Новая привычка", activeHabits: "Мои привычки",
-                notesTitle: "Быстрые заметки", fullNotesTitle: "Мои Заметки",
-                createSchedule: "Создать расписание", selectSchedule: "Выбрать расписание",
-                notifyLabel: "Push-Уведомления", notifyOn: "Включено", notifyOff: "Выключено"
-            },
-            en: {
-                authSubtitle: "Log in to your account to continue",
-                loginTab: "Login", regTab: "Register", lblUsername: "Username",
-                lblPassword: "Password", btnLogin: "Log In", btnRegister: "Create Account",
-                profileTitle: "My Profile", changePhoto: "Change Photo", logout: "Log Out",
-                settingsTitle: "Settings", themeLabel: "Display Mode", colorLabel: "Color Scheme", langLabel: "Language",
-                calendarTitle: "History Calendar", selectDateHint: "Select a date to view completed tasks history.",
-                noHistoryText: "No completed tasks for the selected date.", tasksTitle: "Today's Tasks",
-                addPlaceholder: "What needs to be done?", progressTitle: "Daily Progress",
-                remindersTitle: "Reminders", addReminderTitle: "New Reminder",
-                reminderPlaceholder: "Remind me about...", btnSetReminder: "Set Reminder",
-                activeReminders: "Active", navProfile: "Profile", navTasks: "Tasks",
-                navReminders: "Reminders", navPomo: "Timers", navHabits: "Habits", navNotes: "Notes", navSchedules: "Schedule",
-                dayTheme: "Light", nightTheme: "Dark", errUserExists: "Username already exists",
-                errInvalidCreds: "Invalid username or password", optNormal: "Normal", optImportant: "Important", optUrgent: "Urgent",
-                chartCompleted: "Completed", chartRemaining: "Remaining",
-                pomoTitle: "Create Timer", activeTimers: "My Timers",
-                habitsTitle: "New Habit", activeHabits: "My Habits",
-                notesTitle: "Quick Notes", fullNotesTitle: "My Notes",
-                createSchedule: "Create Schedule", selectSchedule: "Select Schedule",
-                notifyLabel: "Push Notifications", notifyOn: "Enabled", notifyOff: "Disabled"
-            }
-        };
-
-        const quotes = [
-            "«Каждый маленький шаг приближает к большой цели!»",
-            "«Лучший способ начать что-то делать — перестать говорить и начать делать.»",
-            "«Дисциплина — это мост между целями и достижениями.»",
-            "«Успех — это сумма небольших усилий, повторяющихся изо дня в день.»"
-        ];
 
         document.addEventListener("DOMContentLoaded", () => {
             applyTheme(state.theme);
             setColorTheme(state.colorTheme);
             setScheduleColor(state.schColor);
-            applyLanguage(state.lang);
-            updateNotifyBtnUI();
 
             if (state.currentUser && state.users[state.currentUser]) {
                 showMainApp();
@@ -973,52 +758,14 @@
             }
 
             const quoteEl = document.getElementById('quote-box');
-            if (quoteEl) quoteEl.innerText = quotes[Math.floor(Math.random() * quotes.length)];
-
-            const uInput = document.getElementById('auth-username');
-            const pInput = document.getElementById('auth-password');
-            if (uInput) uInput.addEventListener('input', hideAuthError);
-            if (pInput) pInput.addEventListener('input', hideAuthError);
-
-            setInterval(checkReminders, 10000);
+            if (quoteEl) {
+                const quotes = [
+                    "«Каждый маленький шаг приближает к большой цели!»",
+                    "«Лучший способ начать что-то делать — перестать говорить и начать делать.»"
+                ];
+                quoteEl.innerText = quotes[Math.floor(Math.random() * quotes.length)];
+            }
         });
-
-        function togglePushNotifications() {
-            if (!("Notification" in window)) {
-                alert("Ваш браузер не поддерживает Push-уведомления.");
-                return;
-            }
-
-            if (!state.notificationsEnabled) {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        state.notificationsEnabled = true;
-                        localStorage.setItem('fo_notify', 'true');
-                        updateNotifyBtnUI();
-                        showNotification("Family Organizer", "Уведомления включены!");
-                    } else {
-                        alert("Доступ заблокирован в настройках браузера.");
-                    }
-                });
-            } else {
-                state.notificationsEnabled = false;
-                localStorage.setItem('fo_notify', 'false');
-                updateNotifyBtnUI();
-            }
-        }
-
-        function updateNotifyBtnUI() {
-            const btn = document.getElementById('btn-toggle-notify');
-            if (!btn) return;
-            const t = translations[state.lang] || translations.ru;
-            btn.innerText = state.notificationsEnabled ? t.notifyOn : t.notifyOff;
-        }
-
-        function showNotification(title, body) {
-            if (state.notificationsEnabled && "Notification" in window && Notification.permission === "granted") {
-                new Notification(title, { body: body });
-            }
-        }
 
         function toggleTheme() {
             state.theme = state.theme === 'light' ? 'dark' : 'light';
@@ -1028,23 +775,18 @@
 
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
-            const themeBtnMain = document.getElementById('theme-btn-main');
-            const t = translations[state.lang] || translations.ru;
-            if (themeBtnMain) themeBtnMain.innerText = theme === 'light' ? t.dayTheme : t.nightTheme;
+            const btn = document.getElementById('theme-btn-main');
+            if (btn) btn.innerText = theme === 'light' ? 'Дневная' : 'Ночная';
         }
 
         function setColorTheme(colorKey) {
             state.colorTheme = colorKey;
             localStorage.setItem('fo_color', colorKey);
             document.documentElement.setAttribute('data-color', colorKey);
-
             document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
             const activeDot = document.querySelector(`.color-dot[onclick*="${colorKey}"]`);
             if (activeDot) activeDot.classList.add('active');
-            
-            if (chartInstance) {
-                initChart();
-            }
+            if (chartInstance) initChart();
         }
 
         function setScheduleColor(colorKey) {
@@ -1053,106 +795,30 @@
             document.documentElement.setAttribute('data-sch-color', colorKey);
         }
 
-        function changeLanguage(lang) {
-            state.lang = lang;
-            localStorage.setItem('fo_lang', lang);
-            applyLanguage(lang);
-        }
-
-        function applyLanguage(lang) {
-            const t = translations[lang] || translations.ru;
-
-            if (lang === 'ar') {
-                document.documentElement.setAttribute('dir', 'rtl');
-            } else {
-                document.documentElement.removeAttribute('dir');
-            }
-
-            setElText('auth-subtitle', t.authSubtitle);
-            setElText('tab-login', t.loginTab); setElText('tab-register', t.regTab);
-            setElText('lbl-username', t.lblUsername); setElText('lbl-password', t.lblPassword);
-            setElText('auth-submit-btn', state.currentTab === 'login' ? t.btnLogin : t.btnRegister);
-
-            setElText('txt-profile-title', t.profileTitle); setElText('txt-change-photo', t.changePhoto);
-            setElText('txt-logout', t.logout); setElText('txt-settings-title', t.settingsTitle);
-            setElText('txt-theme-label', t.themeLabel); setElText('txt-color-label', t.colorLabel); setElText('txt-lang-label', t.langLabel);
-            setElText('txt-calendar-title', t.calendarTitle); setElText('txt-select-date-hint', t.selectDateHint);
-            setElText('txt-notify-label', t.notifyLabel);
-
-            setElText('txt-tasks-title', t.tasksTitle);
-            const taskInput = document.getElementById('task-input');
-            if (taskInput) taskInput.placeholder = t.addPlaceholder;
-
-            setElText('txt-progress-title', t.progressTitle);
-            setElText('txt-notes-title', t.notesTitle);
-            setElText('txt-full-notes-title', t.fullNotesTitle);
-            setElText('txt-reminders-title', t.remindersTitle);
-            setElText('txt-add-reminder-title', t.addReminderTitle);
-
-            const remInput = document.getElementById('reminder-text');
-            if (remInput) remInput.placeholder = t.reminderPlaceholder;
-
-            setElText('btn-set-reminder', t.btnSetReminder); setElText('txt-active-reminders', t.activeReminders);
-            setElText('txt-pomodoro-title', t.pomoTitle); setElText('txt-active-timers', t.activeTimers);
-            setElText('txt-habits-title', t.habitsTitle); setElText('txt-active-habits', t.activeHabits);
-            setElText('txt-create-schedule', t.createSchedule); setElText('txt-select-schedule', t.selectSchedule);
-
-            setElText('nav-lbl-profile', t.navProfile); setElText('nav-lbl-tasks', t.navTasks);
-            setElText('nav-lbl-reminders', t.navReminders); setElText('nav-lbl-pomo', t.navPomo);
-            setElText('nav-lbl-habits', t.navHabits); setElText('nav-lbl-notes', t.navNotes); setElText('nav-lbl-schedules', t.navSchedules);
-
-            const prioSelect = document.getElementById('task-priority');
-            if (prioSelect && prioSelect.options.length >= 3) {
-                prioSelect.options[0].text = t.optNormal;
-                prioSelect.options[1].text = t.optImportant;
-                prioSelect.options[2].text = t.optUrgent;
-            }
-
-            document.getElementById('auth-lang-select').value = lang;
-            document.getElementById('main-lang-select').value = lang;
-
-            applyTheme(state.theme);
-            updateNotifyBtnUI();
-            if (chartInstance) {
-                chartInstance.data.labels = [t.chartCompleted, t.chartRemaining];
-                chartInstance.update();
-            }
-            renderReminders();
-        }
-
-        function setElText(id, text) {
-            const el = document.getElementById(id);
-            if (el) el.innerText = text;
-        }
-
         function switchAuthTab(tab) {
             state.currentTab = tab;
             document.getElementById('tab-login').classList.toggle('active', tab === 'login');
             document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-            const t = translations[state.lang] || translations.ru;
-            document.getElementById('auth-submit-btn').innerText = tab === 'login' ? t.btnLogin : t.btnRegister;
-            hideAuthError();
+            document.getElementById('auth-submit-btn').innerText = tab === 'login' ? 'Войти в приложение' : 'Зарегистрироваться';
         }
 
         function handleAuthSubmit(e) {
             if (e && e.preventDefault) e.preventDefault();
-            hideAuthError();
-
             const username = document.getElementById('auth-username').value.trim();
             const password = document.getElementById('auth-password').value;
             if (!username || !password) return false;
 
             if (state.currentTab === 'register') {
                 if (state.users[username]) {
-                    showAuthError((translations[state.lang] || translations.ru).errUserExists);
+                    alert('Пользователь уже существует');
                     return false;
                 }
-                state.users[username] = { password, avatar: null, tasks: [], reminders: [], timers: [], habits: [], notesList: [], schedulesList: [], notes: "", history: {} };
+                state.users[username] = { password, avatar: null, tasks: [], reminders: [], timers: [], habits: [], notesList: [], schedulesList: [], history: {} };
                 saveUsers();
                 loginUser(username);
             } else {
                 if (!state.users[username] || state.users[username].password !== password) {
-                    showAuthError((translations[state.lang] || translations.ru).errInvalidCreds);
+                    alert('Неверный логин или пароль');
                     return false;
                 }
                 loginUser(username);
@@ -1163,9 +829,6 @@
         function loginUser(username) {
             state.currentUser = username;
             localStorage.setItem('fo_current_user', username);
-            document.getElementById('auth-username').value = '';
-            document.getElementById('auth-password').value = '';
-            hideAuthError();
             showMainApp();
         }
 
@@ -1184,7 +847,7 @@
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
 
-            const userData = state.users[state.currentUser] || { tasks: [], reminders: [], timers: [], habits: [], notesList: [], schedulesList: [], notes: "", history: {} };
+            const userData = state.users[state.currentUser] || { tasks: [], reminders: [], timers: [], habits: [], notesList: [], schedulesList: [], history: {} };
             document.getElementById('display-username').innerText = state.currentUser;
 
             const avatarImg = document.getElementById('avatar-img');
@@ -1193,9 +856,6 @@
                 avatarImg.src = userData.avatar;
                 avatarImg.style.display = 'block';
                 if (defaultIcon) defaultIcon.style.display = 'none';
-            } else {
-                avatarImg.style.display = 'none';
-                if (defaultIcon) defaultIcon.style.display = 'block';
             }
 
             state.tasks = userData.tasks || [];
@@ -1204,10 +864,7 @@
             state.habits = userData.habits || [];
             state.notesList = userData.notesList || [];
             state.schedulesList = userData.schedulesList || [];
-            state.notes = userData.notes || "";
             state.history = userData.history || {};
-
-            document.getElementById('quick-notes').value = state.notes;
 
             renderTasks();
             renderReminders();
@@ -1218,32 +875,81 @@
             initChart();
         }
 
-        function showAuthError(msg) {
-            const errBox = document.getElementById('auth-error');
-            if (errBox) { errBox.innerText = msg; errBox.classList.remove('hidden'); }
-        }
-
-        function hideAuthError() {
-            const errBox = document.getElementById('auth-error');
-            if (errBox) errBox.classList.add('hidden');
-        }
-
         function switchPage(pageId, btnElement) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             if (btnElement) btnElement.classList.add('active');
         }
 
-        // РАСПИСАНИЕ
+        /* Переключение внутри инструментов (Заметки / Привычки / Таймеры) */
+        function switchToolSubpage(subpageId, btnElement) {
+            document.querySelectorAll('.tool-subpage').forEach(p => p.classList.remove('active'));
+            document.getElementById(subpageId).classList.add('active');
+            document.querySelectorAll('.tool-tab-btn').forEach(b => b.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+        }
+
+        // Задачи
+        function addTask(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const input = document.getElementById('task-input');
+            const priority = document.getElementById('task-priority').value;
+            const category = document.getElementById('task-category').value;
+            const text = input.value.trim();
+            if (!text) return;
+
+            state.tasks.push({ id: Date.now(), text, completed: false, priority, category });
+            input.value = '';
+            saveUserData();
+            renderTasks();
+        }
+
+        function toggleTask(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                if (task.completed && typeof confetti === 'function') {
+                    confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
+                }
+                saveUserData();
+                renderTasks();
+            }
+        }
+
+        function deleteTask(id) {
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            saveUserData();
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('task-list');
+            if (!list) return;
+            list.innerHTML = '';
+            state.tasks.forEach(t => {
+                const li = document.createElement('li');
+                li.className = `task-item priority-${t.priority} ${t.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <div class="task-left">
+                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${t.id})">
+                        <span>${escapeHtml(t.text)}</span>
+                        <span class="tag-badge">${t.category || 'Дом'}</span>
+                    </div>
+                    <button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>
+                `;
+                list.appendChild(li);
+            });
+            updateChart();
+        }
+
+        // Расписание
         function createNewSchedule(e) {
             if (e && e.preventDefault) e.preventDefault();
             const nameEl = document.getElementById('schedule-name-input');
             const name = nameEl.value.trim();
             if (!name) return;
-
-            const newSch = { id: Date.now(), name: name, entries: [] };
+            const newSch = { id: Date.now(), name, entries: [] };
             state.schedulesList.push(newSch);
             state.currentScheduleId = newSch.id;
             nameEl.value = '';
@@ -1268,17 +974,14 @@
             if (e && e.preventDefault) e.preventDefault();
             const currentSch = state.schedulesList.find(s => s.id === state.currentScheduleId);
             if (!currentSch) return;
-
             const subject = document.getElementById('sch-subject').value.trim();
             const day = document.getElementById('sch-day').value;
             const start = document.getElementById('sch-time-start').value;
             const end = document.getElementById('sch-time-end').value;
             const location = document.getElementById('sch-location').value.trim();
-
             if (!subject || !start || !end) return;
 
             currentSch.entries.push({ id: Date.now(), subject, day, start, end, location });
-
             document.getElementById('sch-subject').value = '';
             document.getElementById('sch-location').value = '';
             saveUserData();
@@ -1297,26 +1000,20 @@
             const selector = document.getElementById('schedule-selector');
             if (!selector) return;
             selector.innerHTML = '';
-
             if (state.schedulesList.length === 0) {
                 document.getElementById('schedule-active-block').classList.add('hidden');
                 return;
             }
-
             document.getElementById('schedule-active-block').classList.remove('hidden');
-
             if (!state.currentScheduleId || !state.schedulesList.find(s => s.id === state.currentScheduleId)) {
                 state.currentScheduleId = state.schedulesList[0].id;
             }
-
             state.schedulesList.forEach(s => {
                 const opt = document.createElement('option');
-                opt.value = s.id;
-                opt.innerText = s.name;
+                opt.value = s.id; opt.innerText = s.name;
                 if (s.id === state.currentScheduleId) opt.selected = true;
                 selector.appendChild(opt);
             });
-
             renderCurrentScheduleGrid();
         }
 
@@ -1324,23 +1021,15 @@
             const currentSch = state.schedulesList.find(s => s.id === state.currentScheduleId);
             const grid = document.getElementById('schedule-week-grid');
             if (!currentSch || !grid) return;
-
             document.getElementById('current-schedule-title').innerText = currentSch.name;
-            
             const today = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('today-date-display').innerText = `Сегодня: ${today.toLocaleDateString('ru-RU', options)}`;
+            document.getElementById('today-date-display').innerText = `Сегодня: ${today.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })}`;
 
             const daysMap = [
-                { key: 'Пн', name: 'Понедельник', idx: 1 },
-                { key: 'Вт', name: 'Вторник', idx: 2 },
-                { key: 'Ср', name: 'Среда', idx: 3 },
-                { key: 'Чт', name: 'Четверг', idx: 4 },
-                { key: 'Пт', name: 'Пятница', idx: 5 },
-                { key: 'Сб', name: 'Суббота', idx: 6 },
-                { key: 'Вс', name: 'Воскресенье', idx: 0 }
+                { key: 'Пн', name: 'Понедельник', idx: 1 }, { key: 'Вт', name: 'Вторник', idx: 2 },
+                { key: 'Ср', name: 'Среда', idx: 3 }, { key: 'Чт', name: 'Четверг', idx: 4 },
+                { key: 'Пт', name: 'Пятница', idx: 5 }, { key: 'Сб', name: 'Суббота', idx: 6 }, { key: 'Вс', name: 'Воскресенье', idx: 0 }
             ];
-
             const currentDayIdx = today.getDay();
             grid.innerHTML = '';
 
@@ -1348,11 +1037,7 @@
                 const isToday = d.idx === currentDayIdx;
                 const col = document.createElement('div');
                 col.className = `day-column ${isToday ? 'today' : ''}`;
-
-                const dayEntries = currentSch.entries
-                    .filter(e => e.day === d.key)
-                    .sort((a, b) => a.start.localeCompare(b.start));
-
+                const dayEntries = currentSch.entries.filter(e => e.day === d.key).sort((a, b) => a.start.localeCompare(b.start));
                 let entriesHTML = dayEntries.map(e => `
                     <div class="sch-card-item">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1363,53 +1048,26 @@
                         ${e.location ? `<div class="loc">📍 ${escapeHtml(e.location)}</div>` : ''}
                     </div>
                 `).join('');
-
-                col.innerHTML = `
-                    <div class="day-header">${d.key} (${d.name})</div>
-                    <div>${entriesHTML || '<div style="font-size:11px; color:var(--text-secondary); text-align:center; margin-top:10px;">Нет занятий</div>'}</div>
-                `;
+                col.innerHTML = `<div class="day-header">${d.key}</div><div>${entriesHTML || '<div style="font-size:11px; color:var(--text-secondary); text-align:center; margin-top:10px;">Нет</div>'}</div>`;
                 grid.appendChild(col);
             });
         }
 
-        // ЭКСПОРТ В PDF
         function exportToPDF(isColor) {
             document.body.classList.remove('print-bw', 'print-color');
-            if (isColor) {
-                document.body.classList.add('print-color');
-            } else {
-                document.body.classList.add('print-bw');
-            }
-
-            setTimeout(() => {
-                window.print();
-            }, 100);
+            document.body.classList.add(isColor ? 'print-color' : 'print-bw');
+            setTimeout(() => window.print(), 100);
         }
 
         // Заметки
-        function saveNotes() {
-            state.notes = document.getElementById('quick-notes').value;
-            saveUserData();
-        }
-
         function createNewNote(e) {
             if (e && e.preventDefault) e.preventDefault();
             const titleEl = document.getElementById('note-title-input');
             const contentEl = document.getElementById('note-content-input');
-
-            const title = titleEl.value.trim();
-            const content = contentEl.value.trim();
+            const title = titleEl.value.trim(); const content = contentEl.value.trim();
             if (!title || !content) return;
-
-            state.notesList.push({
-                id: Date.now(),
-                title: title,
-                content: content,
-                date: new Date().toLocaleDateString()
-            });
-
-            titleEl.value = '';
-            contentEl.value = '';
+            state.notesList.push({ id: Date.now(), title, content, date: new Date().toLocaleDateString() });
+            titleEl.value = ''; contentEl.value = '';
             saveUserData();
             renderNotesCards();
         }
@@ -1424,30 +1082,23 @@
             const container = document.getElementById('notes-cards-container');
             if (!container) return;
             container.innerHTML = '';
-
             state.notesList.forEach(n => {
                 const card = document.createElement('div');
                 card.className = 'note-card';
                 card.innerHTML = `
-                    <div>
-                        <h4>${escapeHtml(n.title)}</h4>
-                        <p>${escapeHtml(n.content)}</p>
-                    </div>
-                    <div class="note-footer">
-                        <span>${n.date}</span>
-                        <button class="btn-delete" onclick="deleteNoteCard(${n.id})">✕</button>
-                    </div>
+                    <div><h4>${escapeHtml(n.title)}</h4><p>${escapeHtml(n.content)}</p></div>
+                    <div class="note-footer"><span>${n.date}</span><button class="btn-delete" onclick="deleteNoteCard(${n.id})">✕</button></div>
                 `;
                 container.appendChild(card);
             });
         }
 
+        // Привычки
         function addHabit(e) {
             if (e && e.preventDefault) e.preventDefault();
             const input = document.getElementById('habit-input');
             const title = input.value.trim();
             if (!title) return;
-
             state.habits.push({ id: Date.now(), title, streak: 0, completedToday: false });
             input.value = '';
             saveUserData();
@@ -1475,113 +1126,26 @@
             const list = document.getElementById('habit-list');
             if (!list) return;
             list.innerHTML = '';
-
             state.habits.forEach(h => {
                 const li = document.createElement('li');
                 li.className = 'habit-item';
                 li.innerHTML = `
-                    <div class="task-left">
-                        <input type="checkbox" ${h.completedToday ? 'checked' : ''} onchange="toggleHabit(${h.id})">
-                        <span>${escapeHtml(h.title)}</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span class="habit-streak">🔥 ${h.streak} дн.</span>
-                        <button class="btn-delete" onclick="deleteHabit(${h.id})">✕</button>
-                    </div>
+                    <div class="task-left"><input type="checkbox" ${h.completedToday ? 'checked' : ''} onchange="toggleHabit(${h.id})"><span>${escapeHtml(h.title)}</span></div>
+                    <div style="display:flex; align-items:center; gap:10px;"><span class="habit-streak">🔥 ${h.streak} дн.</span><button class="btn-delete" onclick="deleteHabit(${h.id})">✕</button></div>
                 `;
                 list.appendChild(li);
             });
         }
 
-        function addTask(e) {
-            if (e && e.preventDefault) e.preventDefault();
-            const input = document.getElementById('task-input');
-            const priorityEl = document.getElementById('task-priority');
-            const categoryEl = document.getElementById('task-category');
-            if (!input) return;
-
-            const priority = priorityEl ? priorityEl.value : 'normal';
-            const category = categoryEl ? categoryEl.value : 'Дом';
-            const text = input.value.trim();
-            if (!text) return;
-
-            state.tasks.push({ id: Date.now(), text, completed: false, priority, category });
-            input.value = '';
-            saveUserData();
-            renderTasks();
-        }
-
-        function toggleTask(id) {
-            const task = state.tasks.find(t => t.id === id);
-            if (task) {
-                task.completed = !task.completed;
-                if (task.completed && typeof confetti === 'function') {
-                    confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
-                }
-
-                const today = new Date().toISOString().split('T')[0];
-                if (!state.history[today]) state.history[today] = [];
-                if (task.completed) {
-                    state.history[today].push(task.text);
-                } else {
-                    state.history[today] = state.history[today].filter(t => t !== task.text);
-                }
-
-                saveUserData();
-                renderTasks();
-            }
-        }
-
-        function deleteTask(id) {
-            state.tasks = state.tasks.filter(t => t.id !== id);
-            saveUserData();
-            renderTasks();
-        }
-
-        function renderTasks() {
-            const list = document.getElementById('task-list');
-            if (!list) return;
-            list.innerHTML = '';
-
-            state.tasks.forEach(t => {
-                const li = document.createElement('li');
-                li.className = `task-item priority-${t.priority} ${t.completed ? 'completed' : ''}`;
-                li.innerHTML = `
-                    <div class="task-left">
-                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${t.id})">
-                        <span>${escapeHtml(t.text)}</span>
-                        <span class="tag-badge">${t.category || 'Дом'}</span>
-                    </div>
-                    <button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>
-                `;
-                list.appendChild(li);
-            });
-
-            updateChart();
-        }
-
+        // Таймеры
         function createCustomTimer(e) {
             if (e && e.preventDefault) e.preventDefault();
             const labelEl = document.getElementById('timer-label');
             const minutesEl = document.getElementById('timer-minutes');
-
-            const label = labelEl.value.trim();
-            const minutes = parseInt(minutesEl.value);
-
+            const label = labelEl.value.trim(); const minutes = parseInt(minutesEl.value);
             if (!label || isNaN(minutes) || minutes <= 0) return;
-
-            const newTimer = {
-                id: Date.now(),
-                label: label,
-                totalSeconds: minutes * 60,
-                remainingSeconds: minutes * 60,
-                isRunning: false,
-                intervalId: null
-            };
-
-            state.timers.push(newTimer);
-            labelEl.value = '';
-            minutesEl.value = '';
+            state.timers.push({ id: Date.now(), label, totalSeconds: minutes * 60, remainingSeconds: minutes * 60, isRunning: false, intervalId: null });
+            labelEl.value = ''; minutesEl.value = '';
             saveUserData();
             renderTimers();
         }
@@ -1589,7 +1153,6 @@
         function toggleTimerRun(id) {
             const timer = state.timers.find(t => t.id === id);
             if (!timer) return;
-
             if (timer.isRunning) {
                 clearInterval(timer.intervalId);
                 timer.isRunning = false;
@@ -1598,13 +1161,10 @@
                 timer.intervalId = setInterval(() => {
                     timer.remainingSeconds--;
                     updateTimerUI(timer.id);
-
                     if (timer.remainingSeconds <= 0) {
                         clearInterval(timer.intervalId);
                         timer.isRunning = false;
                         timer.remainingSeconds = timer.totalSeconds;
-                        showNotification("Таймер завершён!", `Время для «${timer.label}» вышло!`);
-                        if (typeof confetti === 'function') confetti({ particleCount: 50, spread: 60 });
                         renderTimers();
                     }
                 }, 1000);
@@ -1644,58 +1204,31 @@
             const list = document.getElementById('timer-list');
             if (!list) return;
             list.innerHTML = '';
-
             state.timers.forEach(t => {
                 const m = Math.floor(t.remainingSeconds / 60).toString().padStart(2, '0');
                 const s = (t.remainingSeconds % 60).toString().padStart(2, '0');
-
                 const li = document.createElement('li');
                 li.className = 'timer-item';
-                li.style.flexDirection = 'column';
-                li.style.alignItems = 'stretch';
+                li.style.flexDirection = 'column'; li.style.alignItems = 'stretch';
                 li.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong>${escapeHtml(t.label)}</strong>
-                        <button class="btn-delete" onclick="deleteCustomTimer(${t.id})">✕</button>
-                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;"><strong>${escapeHtml(t.label)}</strong><button class="btn-delete" onclick="deleteCustomTimer(${t.id})">✕</button></div>
                     <div id="timer-display-${t.id}" class="timer-display" style="text-align:center;">${m}:${s}</div>
-                    <div class="timer-controls">
-                        <button class="btn-primary" style="flex:1;" onclick="toggleTimerRun(${t.id})">
-                            ${t.isRunning ? 'Пауза' : 'Старт'}
-                        </button>
-                        <button class="btn-secondary" onclick="resetCustomTimer(${t.id})">Сброс</button>
-                    </div>
+                    <div class="timer-controls"><button class="btn-primary" style="flex:1;" onclick="toggleTimerRun(${t.id})">${t.isRunning ? 'Пауза' : 'Старт'}</button><button class="btn-secondary" onclick="resetCustomTimer(${t.id})">Сброс</button></div>
                 `;
                 list.appendChild(li);
             });
         }
 
+        // Напоминания
         function addReminder(e) {
             if (e && e.preventDefault) e.preventDefault();
-            const textEl = document.getElementById('reminder-text');
-            const timeEl = document.getElementById('reminder-time');
-            if (!textEl || !timeEl) return;
-
-            const text = textEl.value.trim();
-            const time = timeEl.value;
+            const text = document.getElementById('reminder-text').value.trim();
+            const time = document.getElementById('reminder-time').value;
             if (!text || !time) return;
-
-            state.reminders.push({ id: Date.now(), text, time, notified: false });
-            textEl.value = ''; timeEl.value = '';
+            state.reminders.push({ id: Date.now(), text, time });
+            document.getElementById('reminder-text').value = ''; document.getElementById('reminder-time').value = '';
             saveUserData();
             renderReminders();
-        }
-
-        function checkReminders() {
-            const now = new Date();
-            state.reminders.forEach(r => {
-                if (new Date(r.time) <= now && !r.notified) {
-                    showNotification("Напоминание", r.text);
-                    r.notified = true;
-                    saveUserData();
-                    renderReminders();
-                }
-            });
         }
 
         function deleteReminder(id) {
@@ -1708,20 +1241,10 @@
             const list = document.getElementById('reminder-list');
             if (!list) return;
             list.innerHTML = '';
-
             state.reminders.forEach(r => {
-                const dateFormatted = new Date(r.time).toLocaleString(state.lang, {
-                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-                });
                 const li = document.createElement('li');
                 li.className = 'reminder-item';
-                li.innerHTML = `
-                    <div>
-                        <strong>${escapeHtml(r.text)}</strong>
-                        <div style="font-size: 11px; color: var(--text-secondary);">${dateFormatted}</div>
-                    </div>
-                    <button class="btn-delete" onclick="deleteReminder(${r.id})">✕</button>
-                `;
+                li.innerHTML = `<div><strong>${escapeHtml(r.text)}</strong><div style="font-size: 11px; color: var(--text-secondary);">${new Date(r.time).toLocaleString()}</div></div><button class="btn-delete" onclick="deleteReminder(${r.id})">✕</button>`;
                 list.appendChild(li);
             });
         }
@@ -1732,13 +1255,9 @@
                 const reader = new FileReader();
                 reader.onload = (evt) => {
                     const avatarData = evt.target.result;
-                    const avatarImg = document.getElementById('avatar-img');
-                    const defaultIcon = document.getElementById('avatar-default-icon');
-                    
-                    avatarImg.src = avatarData;
-                    avatarImg.style.display = 'block';
-                    if (defaultIcon) defaultIcon.style.display = 'none';
-
+                    document.getElementById('avatar-img').src = avatarData;
+                    document.getElementById('avatar-img').style.display = 'block';
+                    document.getElementById('avatar-default-icon').style.display = 'none';
                     if (state.users[state.currentUser]) {
                         state.users[state.currentUser].avatar = avatarData;
                         saveUsers();
@@ -1748,44 +1267,20 @@
             }
         }
 
-        function loadHistoryDate(dateStr) {
-            const container = document.getElementById('history-results');
-            if (!container) return;
-            const tasksOnDate = state.history[dateStr] || [];
-            const t = translations[state.lang] || translations.ru;
-
-            if (tasksOnDate.length === 0) {
-                container.innerHTML = `<p class="text-muted">${t.noHistoryText}</p>`;
-            } else {
-                container.innerHTML = `<ul class="task-list" style="margin-top: 10px;">` +
-                    tasksOnDate.map(taskText => `<li class="task-item"><span>✓ ${escapeHtml(taskText)}</span></li>`).join('') +
-                    `</ul>`;
-            }
-        }
-
         function initChart() {
             const canvas = document.getElementById('progressChart');
             if (!canvas || typeof Chart === 'undefined') return;
             const ctx = canvas.getContext('2d');
             if (chartInstance) chartInstance.destroy();
-
-            const t = translations[state.lang] || translations.ru;
             const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
 
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: [t.chartCompleted, t.chartRemaining],
-                    datasets: [{
-                        data: [0, 1],
-                        backgroundColor: [accentColor || '#2dd4bf', '#e2e8f0'],
-                        borderWidth: 0
-                    }]
+                    labels: ['Выполнено', 'Осталось'],
+                    datasets: [{ data: [0, 1], backgroundColor: [accentColor || '#2dd4bf', '#e2e8f0'], borderWidth: 0 }]
                 },
-                options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '75%',
-                    plugins: { legend: { display: false } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
             });
             updateChart();
         }
@@ -1795,10 +1290,8 @@
             const total = state.tasks.length;
             const completed = state.tasks.filter(t => t.completed).length;
             const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
-
             chartInstance.data.datasets[0].data = total === 0 ? [0, 1] : [completed, total - completed];
             chartInstance.update();
-
             const centerText = document.getElementById('chart-center-text');
             if (centerText) centerText.innerText = `${pct}%`;
         }
@@ -1811,13 +1304,7 @@
                 state.users[state.currentUser].habits = state.habits;
                 state.users[state.currentUser].notesList = state.notesList;
                 state.users[state.currentUser].schedulesList = state.schedulesList;
-                state.users[state.currentUser].notes = state.notes;
-                state.users[state.currentUser].history = state.history;
                 saveUsers();
-
-                if (db) {
-                    db.ref('users/' + state.currentUser).set(state.users[state.currentUser]);
-                }
             }
         }
 
@@ -1826,10 +1313,7 @@
         }
 
         function escapeHtml(str) {
-            return str.replace(/[&<>"']/g, match => {
-                const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-                return escapeMap[match];
-            });
+            return str.replace(/[&<>"']/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match]));
         }
     </script>
 </body>
